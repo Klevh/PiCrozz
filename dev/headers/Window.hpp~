@@ -1,0 +1,19 @@
+#ifndef _PICROZZ_WINDOW_AUBIN_KLEVH_
+#define _PICROZZ_WINDOW_AUBIN_KLEVH_
+
+// STL headers
+#include <string>
+
+// graphical display headers
+#include
+
+// personal headers
+
+class Window{
+    static bool uniq_;
+
+public:
+    Window(std::string title,int width,int height);
+}
+
+#endif
