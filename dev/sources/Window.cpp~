@@ -1,3 +1,0 @@
-#include "Window.hpp"
-
-bool Window::uniq_ = true;

@@ -1,12 +1,34 @@
 #include "Window.hpp"
 
+/* TODO
+   Creating elements
+*/
+
 // static attributes
 bool Window::uniq_ = true;
+bool Window::uniq_init_ = true;
 
 // constructors destructors
-Window::Window(std::string title,int width,int height){
-    if(uniq_){
+Window::Window()
+    :window_(nullptr)
+    ,elements_()
+    ,pattern_no_img({-1.,1.,-1.,-1.,1.,-1.,1.,-1.,1.,1.,-1.,1.},{"plan","offset","size"},"ressources/vertex_no_img.glsl","ressources/fragment_no_img.glsl")
+    ,pattern_img({-1.,1.,-1.,-1.,1.,-1.,1.,-1.,1.,1.,-1.,1.},{"plan","offset","size"},"ressources/vertex_no_img.glsl","ressources/fragment_no_img.glsl")
+{
+    if(uniq_)
 	uniq_ = false;
+    else
+	throw WindowInstancedTwice();
+}
+
+Window::~Window(){
+    glfwTerminate();
+}
+
+// public methods
+void Window::init(std::string title,int width,int height){
+    if(uniq_init_){
+	uniq_init_ = false;
 	
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -33,24 +55,32 @@ Window::Window(std::string title,int width,int height){
 	glewExperimental = GL_TRUE;
 	if(glewInit() != GLEW_OK){
 	    glfwTerminate();
-	    throw GLErrors::GLEW_INIT_FAILED();
+	    throw Errors::GLEW_INIT_FAILED();
 	}
+	glGetError();
+	
+	// background color
+	glClearColor(0,0,0,0);
 
-	if(GLErrors::glGetError()){
-	    glfwTerminate();
-	    throw GLErrors::GL_ERROR();
-	}
+	// TODO : creating elements
+	
+	Errors::glGetError(glfwTerminate);
     }else
-	throw WindowInstancedTwice();
+	throw WindowInitTwice();
 }
-Window::~Window(){
-    glfwTerminate();
+
+void Window::run(){
+    
 }
 
 // public classes
 // --- WindowInstancedTwice
 std::string Window::WindowInstancedTwice::what(){
     return "You tried to instance more than one window";
+}
+// --- WindowInitTwice
+std::string Window::WindowInitTwice::what(){
+    return "You tried to initialize a window more than once";
 }
 // --- WindowNotCreated
 std::string Window::WindowNotCreated::what(){

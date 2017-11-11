@@ -6,6 +6,12 @@
 
 #IncludeRegexTransform: 
 
+../headers/Element.hpp
+GL/glew.h
+-
+GLFW/glfw3.h
+-
+
 ../headers/GLErrors.hpp
 fstream
 -
@@ -17,6 +23,8 @@ string
 -
 sstream
 -
+functional
+-
 GL/glew.h
 -
 GL/gl.h
@@ -27,22 +35,28 @@ string
 -
 exception
 -
+vector
+-
 GL/glew.h
 -
 GLFW/glfw3.h
 -
 GLErrors.hpp
 ../headers/GLErrors.hpp
+Element.hpp
+../headers/Element.hpp
 
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/sources/GLErrors.cpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/GLErrors.cpp
 GLErrors.hpp
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/sources/GLErrors.hpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/GLErrors.hpp
 
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/sources/Window.cpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Window.cpp
 Window.hpp
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/sources/Window.hpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Window.hpp
 
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/sources/main.cpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/main.cpp
+iostream
+-
 Window.hpp
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/sources/Window.hpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Window.hpp
 

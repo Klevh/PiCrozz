@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 
-# c version
-set(CMAKE_C_STANDARD 90)
+# c++ version
+list(
+  APPEND
+  CMAKE_CXX_FLAGS
+  "-std=c++11")
 
 # Nom du projet
 
@@ -14,7 +17,9 @@ add_executable(
   # add c files here (without main)
   sources/main.cpp
   sources/Window.cpp
-  sources/GLErrors.cpp
+  sources/Errors.cpp
+  sources/Element.cpp
+  sources/Program.cpp
 )
 
 # trouver les packages
@@ -59,8 +64,7 @@ target_link_libraries(
 
 target_include_directories(
   PiCrozz
-  PUBLIC headers/
-  )
+  PUBLIC headers/)
 
 # options de compilations
 

@@ -4,10 +4,12 @@
 CMakeFiles/PiCrozz.dir/sources/GLErrors.cpp.o: ../headers/GLErrors.hpp
 CMakeFiles/PiCrozz.dir/sources/GLErrors.cpp.o: ../sources/GLErrors.cpp
 
+CMakeFiles/PiCrozz.dir/sources/Window.cpp.o: ../headers/Element.hpp
 CMakeFiles/PiCrozz.dir/sources/Window.cpp.o: ../headers/GLErrors.hpp
 CMakeFiles/PiCrozz.dir/sources/Window.cpp.o: ../headers/Window.hpp
 CMakeFiles/PiCrozz.dir/sources/Window.cpp.o: ../sources/Window.cpp
 
+CMakeFiles/PiCrozz.dir/sources/main.cpp.o: ../headers/Element.hpp
 CMakeFiles/PiCrozz.dir/sources/main.cpp.o: ../headers/GLErrors.hpp
 CMakeFiles/PiCrozz.dir/sources/main.cpp.o: ../headers/Window.hpp
 CMakeFiles/PiCrozz.dir/sources/main.cpp.o: ../sources/main.cpp
