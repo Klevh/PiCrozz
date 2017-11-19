@@ -8,8 +8,10 @@
 #include <sstream>
 #include <functional>
 
+extern "C"{
 #include <GL/glew.h>
 #include <GL/gl.h>
+}
 
 #ifdef LOG_OUTPUT
 #  define SHOW_WHERE(exception,err) LOG_OUTPUT << #exception " caught in file :\n\t" __FILE__ "\nCaught before line : " << __LINE__ << err.what() << std::endl;
@@ -66,7 +68,7 @@ namespace Errors{
 	 * @brief Constructor
 	 * @param message : personnalized message for the error
 	 */
-	ParamError(std::string message);
+	ParamError(const std::string& message);
 	/**
 	 * @brief getter for the error message
 	 * @return The error message as a string

@@ -7,11 +7,13 @@ Element::Element(Pattern * pattern)
 {}
 
 // getters
-Vec3 Element::getValue(unsigned i) const{
+const GLfloat * Element::getValue(unsigned i) const{
     return uniform_values_[i];
 }
 
 // setters
-void Element::setValue(unsigned i, Vec3 v){
-    uniform_values_[i] = v;
+void Element::setValue(unsigned i, GLfloat x, GLfloat y, GLfloat z){
+    uniform_values_[i][0] = x;
+    uniform_values_[i][1] = y;
+    uniform_values_[i][2] = z;
 }

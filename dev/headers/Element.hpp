@@ -8,16 +8,10 @@
 
 #include "Pattern.hpp"
 
-class Vec3{
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-};
-
 class Element{
     Pattern * pattern_;
     ///< pattern to be followed by the element
-    std::vector<Vec3> uniform_values_;
+    std::vector<GLfloat[3]> uniform_values_;
     ///< pattern uniform's values
     
 public:
@@ -29,10 +23,10 @@ public:
     Element(Pattern * pattern);
 
 // getters
-    Vec3 getValue(unsigned i) const;
+    const GLfloat * getValue(unsigned i) const;
 
 // setters
-    void setValue(unsigned i);
+    void setValue(unsigned i, GLfloat x, GLfloat y = 0, GLfloat z = 0);
 };
 
 #endif

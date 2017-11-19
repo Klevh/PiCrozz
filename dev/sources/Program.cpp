@@ -7,7 +7,7 @@ static std::string get_string_from_file(const char * path){
     std::string s;
 
     if(is.is_open()){
-	std::getline(is,s,EOF);
+	std::getline(is,s,(char)EOF);
 	is.close();
     }else{
 	s = "Program::Constructor : could not open the file ";
@@ -18,17 +18,18 @@ static std::string get_string_from_file(const char * path){
     return s;
 }
 
-static GLuint compileShader(GLuint prog,std::string text,GLenum type){
+static GLuint compileShader(GLuint prog,const std::string& text,GLenum type){
     GLuint s = glCreateShader(type);
+    const char * txt = text.c_str();
 
-    glShaderSource(s, &(s.c_str()), NULL);
+    glShaderSource(s, 1, &txt, NULL);
     glCompileShader(s);
     glAttachShader(prog,s);
 
     return s;
 }
 
-Program::Program(const char * vertex_path,const char * fragment_path, const char * geometry_path = NULL){
+Program::Program(const char * vertex_path,const char * fragment_path, const char * geometry_path){
     if(vertex_path || fragment_path || geometry_path){
 	std::string s;
 	GLuint vs, fs, gs;

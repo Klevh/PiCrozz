@@ -1,4 +1,4 @@
-#include "GLErrors.hpp"
+#include "Errors.hpp"
 
 // glGetError
 void Errors::glGetError(std::function<void(void)> func){
@@ -31,6 +31,10 @@ std::string Errors::GLEW_INIT_FAILED::what(){
 }
 
 // ParamError
+Errors::ParamError::ParamError(const std::string& message)
+    :msg_(message)
+{}
+
 std::string Errors::ParamError::what(){
     return "Bad parameter :\n\t" + msg_;
 }

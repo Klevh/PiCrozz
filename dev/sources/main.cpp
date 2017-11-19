@@ -8,10 +8,10 @@ int main(int, char**){
     
     try{
 	window.init("PiCrozz - a ZZ game", 500, 500);	
-    }catch(GLErrors::GLEW_INIT_FAILED& gif){
-	SHOW_WHERE(GLErrors::GLEW_INIT_FAILED,gif);
-    }catch(GLErrors::GL_ERROR& ge){
-	SHOW_WHERE(GLErrors::GL_ERROR,ge);
+    }catch(Errors::GLEW_INIT_FAILED& gif){
+	SHOW_WHERE(Errors::GLEW_INIT_FAILED,gif);
+    }catch(Errors::GL_ERROR& ge){
+	SHOW_WHERE(Errors::GL_ERROR,ge);
     }catch(Window::WindowInitTwice& wit){
 	SHOW_WHERE(Window::WindowInitTwice,wit);
     }catch(Window::WindowInstancedTwice& wit){

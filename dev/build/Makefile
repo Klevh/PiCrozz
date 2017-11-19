@@ -123,32 +123,113 @@ PiCrozz/fast:
 	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/build
 .PHONY : PiCrozz/fast
 
-sources/GLErrors.o: sources/GLErrors.cpp.o
+sources/Element.o: sources/Element.cpp.o
 
-.PHONY : sources/GLErrors.o
+.PHONY : sources/Element.o
 
 # target to build an object file
-sources/GLErrors.cpp.o:
-	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/GLErrors.cpp.o
-.PHONY : sources/GLErrors.cpp.o
+sources/Element.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Element.cpp.o
+.PHONY : sources/Element.cpp.o
 
-sources/GLErrors.i: sources/GLErrors.cpp.i
+sources/Element.i: sources/Element.cpp.i
 
-.PHONY : sources/GLErrors.i
+.PHONY : sources/Element.i
 
 # target to preprocess a source file
-sources/GLErrors.cpp.i:
-	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/GLErrors.cpp.i
-.PHONY : sources/GLErrors.cpp.i
+sources/Element.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Element.cpp.i
+.PHONY : sources/Element.cpp.i
 
-sources/GLErrors.s: sources/GLErrors.cpp.s
+sources/Element.s: sources/Element.cpp.s
 
-.PHONY : sources/GLErrors.s
+.PHONY : sources/Element.s
 
 # target to generate assembly for a file
-sources/GLErrors.cpp.s:
-	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/GLErrors.cpp.s
-.PHONY : sources/GLErrors.cpp.s
+sources/Element.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Element.cpp.s
+.PHONY : sources/Element.cpp.s
+
+sources/Errors.o: sources/Errors.cpp.o
+
+.PHONY : sources/Errors.o
+
+# target to build an object file
+sources/Errors.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Errors.cpp.o
+.PHONY : sources/Errors.cpp.o
+
+sources/Errors.i: sources/Errors.cpp.i
+
+.PHONY : sources/Errors.i
+
+# target to preprocess a source file
+sources/Errors.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Errors.cpp.i
+.PHONY : sources/Errors.cpp.i
+
+sources/Errors.s: sources/Errors.cpp.s
+
+.PHONY : sources/Errors.s
+
+# target to generate assembly for a file
+sources/Errors.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Errors.cpp.s
+.PHONY : sources/Errors.cpp.s
+
+sources/Pattern.o: sources/Pattern.cpp.o
+
+.PHONY : sources/Pattern.o
+
+# target to build an object file
+sources/Pattern.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Pattern.cpp.o
+.PHONY : sources/Pattern.cpp.o
+
+sources/Pattern.i: sources/Pattern.cpp.i
+
+.PHONY : sources/Pattern.i
+
+# target to preprocess a source file
+sources/Pattern.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Pattern.cpp.i
+.PHONY : sources/Pattern.cpp.i
+
+sources/Pattern.s: sources/Pattern.cpp.s
+
+.PHONY : sources/Pattern.s
+
+# target to generate assembly for a file
+sources/Pattern.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Pattern.cpp.s
+.PHONY : sources/Pattern.cpp.s
+
+sources/Program.o: sources/Program.cpp.o
+
+.PHONY : sources/Program.o
+
+# target to build an object file
+sources/Program.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Program.cpp.o
+.PHONY : sources/Program.cpp.o
+
+sources/Program.i: sources/Program.cpp.i
+
+.PHONY : sources/Program.i
+
+# target to preprocess a source file
+sources/Program.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Program.cpp.i
+.PHONY : sources/Program.cpp.i
+
+sources/Program.s: sources/Program.cpp.s
+
+.PHONY : sources/Program.s
+
+# target to generate assembly for a file
+sources/Program.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Program.cpp.s
+.PHONY : sources/Program.cpp.s
 
 sources/Window.o: sources/Window.cpp.o
 
@@ -213,9 +294,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... PiCrozz"
-	@echo "... sources/GLErrors.o"
-	@echo "... sources/GLErrors.i"
-	@echo "... sources/GLErrors.s"
+	@echo "... sources/Element.o"
+	@echo "... sources/Element.i"
+	@echo "... sources/Element.s"
+	@echo "... sources/Errors.o"
+	@echo "... sources/Errors.i"
+	@echo "... sources/Errors.s"
+	@echo "... sources/Pattern.o"
+	@echo "... sources/Pattern.i"
+	@echo "... sources/Pattern.s"
+	@echo "... sources/Program.o"
+	@echo "... sources/Program.i"
+	@echo "... sources/Program.s"
 	@echo "... sources/Window.o"
 	@echo "... sources/Window.i"
 	@echo "... sources/Window.s"

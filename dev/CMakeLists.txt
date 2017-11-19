@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-# c++ version
-list(
-  APPEND
-  CMAKE_CXX_FLAGS
-  "-std=c++11")
-
 # Nom du projet
 
 project(PiCrozz)
@@ -20,7 +14,16 @@ add_executable(
   sources/Errors.cpp
   sources/Element.cpp
   sources/Program.cpp
+  sources/Pattern.cpp
 )
+
+# c++ version
+set_target_properties(
+  PiCrozz
+  PROPERTIES
+  CXX_STANDARD 11
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF)
 
 # trouver les packages
 find_package(OpenGL REQUIRED)

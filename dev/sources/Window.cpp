@@ -62,7 +62,14 @@ void Window::init(std::string title,int width,int height){
 	// background color
 	glClearColor(0,0,0,0);
 
-	// TODO : creating elements
+	// creating elements
+	elements_.push_back(Element(&pattern_no_img));
+	elements_.push_back(Element(&pattern_no_img));
+	for(unsigned i = 0; i < elements_.size(); ++i){
+	    elements_[i].setValue(0,0.5);
+	    elements_[i].setValue(1,0.1 + i*0.3,0.8);
+	    elements_[i].setValue(2,0.2,0.2,0.2);
+	}
 	
 	Errors::glGetError(glfwTerminate);
     }else
@@ -70,7 +77,10 @@ void Window::init(std::string title,int width,int height){
 }
 
 void Window::run(){
-    
+    /* TODO
+           Event loop
+	   Displaying elements with their uniforms
+     */
 }
 
 // public classes
