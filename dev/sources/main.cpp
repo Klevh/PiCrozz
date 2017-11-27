@@ -7,7 +7,8 @@ int main(int, char**){
     Window window;
     
     try{
-	window.init("PiCrozz - a ZZ game", 500, 500);	
+	window.init("PiCrozz - a ZZ game", 500, 500);
+	window.run();	
     }catch(Errors::GLEW_INIT_FAILED& gif){
 	SHOW_WHERE(Errors::GLEW_INIT_FAILED,gif);
     }catch(Errors::GL_ERROR& ge){
@@ -23,8 +24,6 @@ int main(int, char**){
     }catch(...){
 	LOG_OUTPUT << "Unknown error" << std::endl;
     }
-
-    window.run();
     
     return 0;
 }

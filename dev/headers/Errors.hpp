@@ -14,7 +14,7 @@ extern "C"{
 }
 
 #ifdef LOG_OUTPUT
-#  define SHOW_WHERE(exception,err) LOG_OUTPUT << #exception " caught in file :\n\t" __FILE__ "\nCaught before line : " << __LINE__ << err.what() << std::endl;
+#  define SHOW_WHERE(exception,err) LOG_OUTPUT << #exception " caught in file :\n\t" __FILE__ "\nCaught before line : " << __LINE__ << "\n\t"  << err.what() << std::endl;
 #endif
 
 /**
@@ -25,7 +25,7 @@ namespace Errors{
      * @brief testify that there is no openGL errors or throw a GL_ERROR
      * @param func : function to be called if an error occure
      */
-    void glGetError(std::function<void(void)> func);
+    void glGetError(const char * t = "",std::function<void(void)> func = [](){});
     
     /**
      * @brief OpenGL error

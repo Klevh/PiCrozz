@@ -1,11 +1,14 @@
 #include "Errors.hpp"
 
 // glGetError
-void Errors::glGetError(std::function<void(void)> func){
+void Errors::glGetError(const char * t,std::function<void(void)> func){
     GLenum error = ::glGetError();
     
     if(error){
 	std::ostringstream s;
+
+	if(t)
+	    s << "\n\tError message : " << t;
 	do{
 	    s << "\n\t" << std::string((char*)gluErrorString(error));
 	    error = ::glGetError();
