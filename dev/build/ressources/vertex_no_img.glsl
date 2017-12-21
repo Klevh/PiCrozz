@@ -7,6 +7,5 @@ uniform vec3 myOffset;
 uniform vec3 mySize;
 
 void main(){
-     //gl_Position = vec4(position, 0.f, 1.f);
      gl_Position = vec4((position.x * mySize.x + myOffset.x) * 2 - 1, (position.y * mySize.y + myOffset.y) * 2 - 1, myPlan.x, 1.f);
 }
