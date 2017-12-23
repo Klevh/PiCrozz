@@ -59,7 +59,15 @@ public:
      */
     void run();
 
+// private methodes
+private:
+    /**
+     * @brief Initialize menu mode and display
+     */
+    void menu_mode();
+
 // public classes
+public:
     /**
      * @brief Error thrown when trying to instance more than one window
      */

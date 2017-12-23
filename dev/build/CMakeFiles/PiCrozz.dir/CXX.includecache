@@ -15,6 +15,8 @@ vector
 -
 Pattern.hpp
 ../headers/Pattern.hpp
+Vec3.hpp
+../headers/Vec3.hpp
 
 ../headers/Errors.hpp
 fstream
@@ -51,6 +53,10 @@ string
 -
 Errors.hpp
 ../headers/Errors.hpp
+
+../headers/Vec3.hpp
+GL/glew.h
+-
 
 ../headers/Window.hpp
 string
@@ -135,6 +141,10 @@ Program.hpp
 /home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Program.hpp
 fstream
 -
+
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Vec3.cpp
+Vec3.hpp
+/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Vec3.hpp
 
 /home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/sources/Window.cpp
 Window.hpp

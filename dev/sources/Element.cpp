@@ -3,11 +3,17 @@
 // Constructors and Destructors
 Element::Element(Pattern * pattern)
     :pattern_(pattern)
-    ,uniform_values_(pattern->getSize())
-{}
+    ,uniform_values_(pattern->getSize(),{0,0,0})
+{
+    for(unsigned i = 0; i < uniform_values_.size(); ++i){
+	uniform_values_[i][0] = 0;
+	uniform_values_[i][1] = 0;
+	uniform_values_[i][2] = 0;
+    }
+}
 
 // getters
-const GLfloat * Element::getValue(unsigned i) const{
+const Vec3 Element::getValue(unsigned i) const{
     return uniform_values_[i];
 }
 

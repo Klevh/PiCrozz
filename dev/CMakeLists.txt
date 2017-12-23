@@ -17,6 +17,7 @@ add_executable(
   sources/Pattern.cpp
   sources/grille.cpp
   sources/tinyxml2.cpp
+  sources/Vec3.cpp
 )
 
 # c++ version

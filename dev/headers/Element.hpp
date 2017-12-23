@@ -9,11 +9,12 @@ extern "C"{
 #include <vector>
 
 #include "Pattern.hpp"
+#include "Vec3.hpp"
 
 class Element{
     Pattern * pattern_;
     ///< pattern to be followed by the element
-    std::vector< GLfloat[3] > uniform_values_;
+    std::vector< Vec3 > uniform_values_;
     ///< pattern uniform's values
     
 public:
@@ -23,6 +24,10 @@ public:
      * @param pattern : pattern of the element
      */
     Element(Pattern * pattern);
+    /**
+     * @brief Element's destructor
+     */
+    virtual ~Element(){}
 
 // getters
     /**
@@ -30,7 +35,7 @@ public:
      * @param i : index of the value to be gotten
      * @return the GLfloat[3] of the uniform
      */
-    const GLfloat * getValue(unsigned i) const;
+    const Vec3 getValue(unsigned i) const;
     /**
      * @brief getter for the Program ID
      * @return ID of the program
@@ -51,7 +56,7 @@ public:
     /**
      * @brief Draw the element
      */
-    void draw() const;
+    virtual void draw() const;
 };
 
 #endif

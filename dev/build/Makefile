@@ -231,6 +231,33 @@ sources/Program.cpp.s:
 	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Program.cpp.s
 .PHONY : sources/Program.cpp.s
 
+sources/Vec3.o: sources/Vec3.cpp.o
+
+.PHONY : sources/Vec3.o
+
+# target to build an object file
+sources/Vec3.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Vec3.cpp.o
+.PHONY : sources/Vec3.cpp.o
+
+sources/Vec3.i: sources/Vec3.cpp.i
+
+.PHONY : sources/Vec3.i
+
+# target to preprocess a source file
+sources/Vec3.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Vec3.cpp.i
+.PHONY : sources/Vec3.cpp.i
+
+sources/Vec3.s: sources/Vec3.cpp.s
+
+.PHONY : sources/Vec3.s
+
+# target to generate assembly for a file
+sources/Vec3.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Vec3.cpp.s
+.PHONY : sources/Vec3.cpp.s
+
 sources/Window.o: sources/Window.cpp.o
 
 .PHONY : sources/Window.o
@@ -360,6 +387,9 @@ help:
 	@echo "... sources/Program.o"
 	@echo "... sources/Program.i"
 	@echo "... sources/Program.s"
+	@echo "... sources/Vec3.o"
+	@echo "... sources/Vec3.i"
+	@echo "... sources/Vec3.s"
 	@echo "... sources/Window.o"
 	@echo "... sources/Window.i"
 	@echo "... sources/Window.s"

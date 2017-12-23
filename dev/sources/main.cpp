@@ -7,7 +7,7 @@ int main(int, char**){
     Window window;
     
     try{
-	window.init("PiCrozz - a ZZ game", 500, 500);
+	window.init("PiCrozz - a ZZ game", 800, 800);
 	window.run();	
     }catch(Errors::GLEW_INIT_FAILED& gif){
 	SHOW_WHERE(Errors::GLEW_INIT_FAILED,gif);
