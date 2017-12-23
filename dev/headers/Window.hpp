@@ -7,8 +7,10 @@
 #include <vector>
 
 // graphical display headers
+extern "C"{
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+}
 
 // personal headers
 #include "Errors.hpp"

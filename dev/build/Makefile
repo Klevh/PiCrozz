@@ -258,6 +258,33 @@ sources/Window.cpp.s:
 	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/Window.cpp.s
 .PHONY : sources/Window.cpp.s
 
+sources/grille.o: sources/grille.cpp.o
+
+.PHONY : sources/grille.o
+
+# target to build an object file
+sources/grille.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/grille.cpp.o
+.PHONY : sources/grille.cpp.o
+
+sources/grille.i: sources/grille.cpp.i
+
+.PHONY : sources/grille.i
+
+# target to preprocess a source file
+sources/grille.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/grille.cpp.i
+.PHONY : sources/grille.cpp.i
+
+sources/grille.s: sources/grille.cpp.s
+
+.PHONY : sources/grille.s
+
+# target to generate assembly for a file
+sources/grille.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/grille.cpp.s
+.PHONY : sources/grille.cpp.s
+
 sources/main.o: sources/main.cpp.o
 
 .PHONY : sources/main.o
@@ -285,6 +312,33 @@ sources/main.cpp.s:
 	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/main.cpp.s
 .PHONY : sources/main.cpp.s
 
+sources/tinyxml2.o: sources/tinyxml2.cpp.o
+
+.PHONY : sources/tinyxml2.o
+
+# target to build an object file
+sources/tinyxml2.cpp.o:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/tinyxml2.cpp.o
+.PHONY : sources/tinyxml2.cpp.o
+
+sources/tinyxml2.i: sources/tinyxml2.cpp.i
+
+.PHONY : sources/tinyxml2.i
+
+# target to preprocess a source file
+sources/tinyxml2.cpp.i:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/tinyxml2.cpp.i
+.PHONY : sources/tinyxml2.cpp.i
+
+sources/tinyxml2.s: sources/tinyxml2.cpp.s
+
+.PHONY : sources/tinyxml2.s
+
+# target to generate assembly for a file
+sources/tinyxml2.cpp.s:
+	$(MAKE) -f CMakeFiles/PiCrozz.dir/build.make CMakeFiles/PiCrozz.dir/sources/tinyxml2.cpp.s
+.PHONY : sources/tinyxml2.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -309,9 +363,15 @@ help:
 	@echo "... sources/Window.o"
 	@echo "... sources/Window.i"
 	@echo "... sources/Window.s"
+	@echo "... sources/grille.o"
+	@echo "... sources/grille.i"
+	@echo "... sources/grille.s"
 	@echo "... sources/main.o"
 	@echo "... sources/main.i"
 	@echo "... sources/main.s"
+	@echo "... sources/tinyxml2.o"
+	@echo "... sources/tinyxml2.i"
+	@echo "... sources/tinyxml2.s"
 .PHONY : help
 
 

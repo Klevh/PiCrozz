@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/PiCrozz.dir/sources/Element.cpp.o"
   "CMakeFiles/PiCrozz.dir/sources/Program.cpp.o"
   "CMakeFiles/PiCrozz.dir/sources/Pattern.cpp.o"
+  "CMakeFiles/PiCrozz.dir/sources/grille.cpp.o"
+  "CMakeFiles/PiCrozz.dir/sources/tinyxml2.cpp.o"
   "PiCrozz.pdb"
   "PiCrozz"
 )

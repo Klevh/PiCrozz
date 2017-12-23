@@ -55,8 +55,9 @@ void Pattern::bindVAO(){
     glBindVertexArray(VAO);
     Errors::glGetError("Pattern::bindVAO::glBindVertexArray");
 }
-
+#include <iostream>
 void Pattern::setUniform(unsigned i, GLfloat x, GLfloat y, GLfloat z) const{
+    static unsigned b = 0;
     glUniform3f(uniform_id_[i],x,y,z);
     Errors::glGetError("Pattern::setUniform::glUniform3f");
 }

@@ -8,7 +8,7 @@ bool Window::uniq_init_ = true;
 Window::Window()
     :window_(nullptr)
     ,elements_()
-    ,pattern_no_img({0.,1.,0.,0.,1.,0.,1.,0.,1.,1.,0.,1.},{"myPlan","myOffset","mySize"})
+    ,pattern_no_img({0.,1.,0.,0.,1.,0.,1.,0.,1.,1.,0.,1.},{"myPlan","myOffset","mySize","myColor"})
     ,pattern_img({},{})
 {
     if(uniq_)
@@ -57,15 +57,16 @@ void Window::init(std::string title,int width,int height){
 	//pattern_img.init("ressources/vertex_img.glsl","ressources/fragment_img.glsl");
 	
 	// background color
-	glClearColor(0,0,0,0);
+	glClearColor(1,1,1,0);
 
 	// creating elements
 	elements_.push_back(Element(&pattern_no_img));
 	elements_.push_back(Element(&pattern_no_img));
 	for(unsigned i = 0; i < elements_.size(); ++i){
-	    elements_[i].setValue(0,0.5);
-	    elements_[i].setValue(1,0.1 + i*0.3,.5);
-	    elements_[i].setValue(2,0.2,0.2);
+	    elements_[i].setValue(0,0.5); // set plan
+	    elements_[i].setValue(1,0.1 + i*0.3,0.1); // set offset
+	    elements_[i].setValue(2,0.2,0.2); // set size
+	    elements_[i].setValue(3,0,1.,0); // set color
 	}
 	
 	Errors::glGetError("Window::Window",glfwTerminate);
@@ -75,6 +76,9 @@ void Window::init(std::string title,int width,int height){
 
 void Window::run(){
     GLuint curr_prog;
+//    int w,h;
+//    glfwGetFramebufferSize(window_,&w,&h);
+//    glViewport(0,0,w,h);
     
     while(!glfwWindowShouldClose(window_)){
 	// capture d'evenement 

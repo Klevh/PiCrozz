@@ -8,13 +8,15 @@ project(PiCrozz)
 
 add_executable(
   PiCrozz
-  # add c files here (without main)
+  # add cpp files here (without main)
   sources/main.cpp
   sources/Window.cpp
   sources/Errors.cpp
   sources/Element.cpp
   sources/Program.cpp
   sources/Pattern.cpp
+  sources/grille.cpp
+  sources/tinyxml2.cpp
 )
 
 # c++ version
@@ -42,7 +44,7 @@ ENDIF()
 
 find_package(glfw3 REQUIRED)
 IF(glfw3_FOUND)
-  MESSAGE(INFO " glfw3 lib found at ${GLEW_LIBRARIES}")
+  MESSAGE(INFO " glfw3 lib found at ${glfw3_LIBRARIES}")
 ELSE()
   MESSAGE(ERROR " glfw3 not found")
 ENDIF()
