@@ -16,7 +16,7 @@ bool Window::uniq_init_ = true;
 Window::Window()
     :window_(nullptr)
     ,elements_()
-    ,pattern_no_img({0.,1.,0.,0.,1.,0.,1.,0.,1.,1.,0.,1.},{"myPlan","myOffset","mySize","myColor","myRotation"})
+    ,pattern_no_img({0.,1.,0.,0.,1.,0.,1.,0.,1.,1.,0.,1.},{"myPlan","myOffset","myRatio","myColor","myRotation"})
     ,pattern_img({},{})
 {
     if(uniq_)
@@ -162,15 +162,15 @@ void Window::menu_mode(){
 	    elements_[j].setValue(1,0.205 + coords[j - i][0] * 0.08,1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
 	    elements_[j].setValue(2,0.07,0.02); // set size
 	    elements_[j].setValue(3,0,0,0); // set color
-	    elements_[j].setValue(4,45); // set rotation
+	    elements_[j].setValue(4,0); // set rotation
 	}
 	i += 3;
 	for(unsigned j = i; j < i + 3; ++j){
 	    elements_[j].setValue(0,0.5); // set plan
-	    elements_[j].setValue(1,0.205 + coords[j - i][0] * 0.08,1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
+	    elements_[j].setValue(1,0.205 + coords[j - i][0] * 0.08, 1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
 	    elements_[j].setValue(2,0.07,0.02); // set size
 	    elements_[j].setValue(3,0,0,0); // set color
-	    elements_[j].setValue(4,-45); // set rotation
+	    elements_[j].setValue(4,0); // set rotation
 	}
 	i += 3;
     }
