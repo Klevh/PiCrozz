@@ -15,9 +15,10 @@ bool Window::uniq_init_ = true;
 // constructors destructors
 Window::Window()
     :window_(nullptr)
-    ,elements_()
+    ,elements_(COUNT)
     ,pattern_no_img({0.,1.,0.,0.,1.,0.,1.,0.,1.,1.,0.,1.},{"myPlan","myOffset","myRatio","myColor","myRotation"})
     ,pattern_img({},{})
+    ,state(MENU)
 {
     if(uniq_)
 	uniq_ = false;
@@ -70,6 +71,11 @@ void Window::init(std::string title,int width,int height){
 	// size changing buffer
 	glfwSetFramebufferSizeCallback(window_,
 				       resize_framebuffer);
+
+	// generating all pages
+	game_mode();
+	menu_mode();
+	state = GAME;
 	
 	Errors::glGetError("Window::Window",glfwTerminate);
     }else
@@ -79,8 +85,6 @@ void Window::init(std::string title,int width,int height){
 void Window::run(){
     GLuint curr_prog;
     
-    menu_mode();
-    
     while(!glfwWindowShouldClose(window_)){
 	// capture d'evenement 
 	glfwPollEvents();
@@ -89,11 +93,11 @@ void Window::run(){
 	glClear(GL_COLOR_BUFFER_BIT); 
 
         // TODO : dessin des elements
-	if(elements_.size()){
-	    curr_prog = elements_[0].getId();
+	if(elements_[state].size()){
+	    curr_prog = elements_[state][0].getId();
 	    glUseProgram(curr_prog);
 	    Errors::glGetError("Window::run::glUseProgram");
-	    for(const Element& e : elements_){
+	    for(const Element& e : elements_[state]){
 		if(curr_prog != e.getId()){
 		    curr_prog = e.getId();
 		    glUseProgram(curr_prog);
@@ -111,30 +115,30 @@ void Window::run(){
     }
 }
 
-void Window::menu_mode(){
+void Window::game_mode(){
     unsigned i = 0;
     
     // grid 10 x 10
-    elements_.push_back(Element(&pattern_no_img));
-    elements_[0].setValue(0,0.5); // set plan
-    elements_[0].setValue(1,0.2,0); // set offset
-    elements_[0].setValue(2,0.8,0.8); // set size
-    elements_[0].setValue(3,1,1,1); // set color
+    elements_[GAME].push_back(Element(&pattern_no_img));
+    elements_[GAME][0].setValue(0,0.5); // set plan
+    elements_[GAME][0].setValue(1,0.2,0); // set offset
+    elements_[GAME][0].setValue(2,0.8,0.8); // set size
+    elements_[GAME][0].setValue(3,1,1,1); // set color
     ++i;
     for(unsigned i = 0; i < 22; ++i)
-	elements_.push_back(Element(&pattern_no_img));
+	elements_[GAME].push_back(Element(&pattern_no_img));
     for(unsigned j = i; j < i + 11; ++j){
-	elements_[j].setValue(0,0.5); // set plan
-	elements_[j].setValue(1,0.198 + (j - i)*0.08,0.002); // set offset
-	elements_[j].setValue(2,0.002,0.8); // set size
-	elements_[j].setValue(3,0,0,0); // set color
+	elements_[GAME][j].setValue(0,0.5); // set plan
+	elements_[GAME][j].setValue(1,0.198 + (j - i)*0.08,0.002); // set offset
+	elements_[GAME][j].setValue(2,0.002,0.8); // set size
+	elements_[GAME][j].setValue(3,0,0,0); // set color
     }
     i += 11;
     for(unsigned j = i; j < i + 11; ++j){
-	elements_[j].setValue(0,0.5); // set plan
-	elements_[j].setValue(1,0.198,0 + (j - i)*0.08); // set offset
-	elements_[j].setValue(2,0.8,0.002); // set size
-	elements_[j].setValue(3,0,0,0); // set color
+	elements_[GAME][j].setValue(0,0.5); // set plan
+	elements_[GAME][j].setValue(1,0.198,0 + (j - i)*0.08); // set offset
+	elements_[GAME][j].setValue(2,0.8,0.002); // set size
+	elements_[GAME][j].setValue(3,0,0,0); // set color
     }
     i += 11;
 
@@ -142,12 +146,12 @@ void Window::menu_mode(){
     {
 	unsigned coords[3][2] = {{0, 3}, {2, 9}, {5,5}};
 	for (unsigned i = 0; i < 3; ++i)
-	    elements_.push_back(Element(&pattern_no_img));
+	    elements_[GAME].push_back(Element(&pattern_no_img));
 	for(unsigned j = i; j < i + 3; ++j){
-	    elements_[j].setValue(0,0.5); // set plan
-	    elements_[j].setValue(1,0.205 + coords[j - i][0] * 0.08,1 - (0.205 + coords[j - i][1] * 0.08) + 0.01); // set offset
-	    elements_[j].setValue(2,0.07,0.07); // set size
-	    elements_[j].setValue(3,0,0,0); // set color
+	    elements_[GAME][j].setValue(0,0.5); // set plan
+	    elements_[GAME][j].setValue(1,0.205 + coords[j - i][0] * 0.08,1 - (0.205 + coords[j - i][1] * 0.08) + 0.01); // set offset
+	    elements_[GAME][j].setValue(2,0.07,0.07); // set size
+	    elements_[GAME][j].setValue(3,0,0,0); // set color
 	}
 	i += 3;
     }
@@ -156,24 +160,28 @@ void Window::menu_mode(){
     {
 	unsigned coords[3][2] = {{1,2}, {6,5}, {7,2}};
 	for(unsigned i = 0; i < 6; ++i)
-	    elements_.push_back(Element(&pattern_no_img));
+	    elements_[GAME].push_back(Element(&pattern_no_img));
 	for(unsigned j = i; j < i + 3; ++j){
-	    elements_[j].setValue(0,0.5); // set plan
-	    elements_[j].setValue(1,0.205 + coords[j - i][0] * 0.08,1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
-	    elements_[j].setValue(2,0.07,0.02); // set size
-	    elements_[j].setValue(3,0,0,0); // set color
-	    elements_[j].setValue(4,0); // set rotation
+	    elements_[GAME][j].setValue(0,0.5); // set plan
+	    elements_[GAME][j].setValue(1,0.205 + coords[j - i][0] * 0.08,1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
+	    elements_[GAME][j].setValue(2,0.07,0.02); // set size
+	    elements_[GAME][j].setValue(3,0,0,0); // set color
+	    elements_[GAME][j].setValue(4,120); // set rotation
 	}
 	i += 3;
 	for(unsigned j = i; j < i + 3; ++j){
-	    elements_[j].setValue(0,0.5); // set plan
-	    elements_[j].setValue(1,0.205 + coords[j - i][0] * 0.08, 1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
-	    elements_[j].setValue(2,0.07,0.02); // set size
-	    elements_[j].setValue(3,0,0,0); // set color
-	    elements_[j].setValue(4,0); // set rotation
+	    elements_[GAME][j].setValue(0,0.5); // set plan
+	    elements_[GAME][j].setValue(1,0.205 + coords[j - i][0] * 0.08, 1 - (0.205 + coords[j - i][1] * 0.08) + 0.01 + 0.025); // set offset
+	    elements_[GAME][j].setValue(2,0.07,0.02); // set size
+	    elements_[GAME][j].setValue(3,0,0,0); // set color
+	    elements_[GAME][j].setValue(4,0); // set rotation
 	}
 	i += 3;
     }
+}
+
+void Window::menu_mode(){
+    
 }
 
 // public classes

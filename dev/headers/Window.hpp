@@ -27,12 +27,14 @@ class Window{
     // non-static attributes
     GLFWwindow * window_;
     ///< glfw window object
-    std::vector<Element> elements_;
-    ///< collection of elements
+    std::vector< std::vector<Element> > elements_;
+    ///< collections of elements
     Pattern pattern_img;
     ///< pattern that support image
     Pattern pattern_no_img;
     ///< pattern that does not support image
+    enum STATE_VALUE{MENU, GAME, COUNT} state;
+    ///< 'page' to be displayed
 
 public:
 // constructors destructors
@@ -61,6 +63,10 @@ public:
 
 // private methodes
 private:
+    /**
+     * @brief Initialize game mode and display
+     */
+    void game_mode();
     /**
      * @brief Initialize menu mode and display
      */
