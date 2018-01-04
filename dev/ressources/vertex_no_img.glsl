@@ -11,15 +11,17 @@ uniform vec3 myRotation;
 out vec3 colorIn;
 
 vec2 pos;
+vec2 angle;
 
 void main(){
      colorIn = myColor;
      
-     pos = (position * myRatio.xy - vec2(.5, .5)) * 2;
+     pos = position * myRatio.xy;
 
+     angle = vec2(cos(myRotation.x), sin(myRotation.x));
      pos = pos
-           * mat2(cos(myRotation.x) ,-sin(myRotation.x),
-     	      	  sin(myRotation.x) , cos(myRotation.x));
+           * mat2(angle.x ,-angle.y,
+     	      	  angle.y , angle.x);
 
-     gl_Position = vec4(pos + myOffset.xy * 2 , myPlan.x, 1.f);
+     gl_Position = vec4(pos + myOffset.xy , myPlan.x, 1.f);
 }
