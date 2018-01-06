@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <vector>
+#include <chrono>
 
 // graphical display headers
 extern "C"{
@@ -29,24 +30,42 @@ class Window{
     ///< glfw window object
     std::vector< std::vector<Element> > elements_;
     ///< collections of elements
-    Pattern pattern_img;
+    Pattern pattern_img_;
     ///< pattern that support image
-    Pattern pattern_no_img;
+    Pattern pattern_no_img_;
     ///< pattern that does not support image
-    enum STATE_VALUE{MENU, GAME, COUNT} state;
+    enum STATE_VALUE{MENU, GAME, QUIT, COUNT} state_;
     ///< 'page' to be displayed
 
 public:
+// public values available for changing "page"
+    static const STATE_VALUE P_MENU;
+    ///< state of the window when it is in the menu
+    static const STATE_VALUE P_GAME;
+    ///< state of the window when it is in the game
+    static const STATE_VALUE P_QUIT;
+    ///< state of the window when you want it to quit
+    
 // constructors destructors
     /**
      * @brief Window constructor
      */
     Window();
 
+    //deleted constructors / copy operator
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+
     /**
      * @brief Window destructor
      */
     ~Window();
+
+// getters
+    STATE_VALUE getState() const;
+
+// setters
+    STATE_VALUE setState(STATE_VALUE state);
 
 // public methods
     /**
@@ -60,6 +79,19 @@ public:
      * @brief Open and run the game until the user ask to stop it
      */
     void run();
+    /**
+     * @brief Behavior when the window is clicked (same parameters as glfw mouse button callback function)
+     * @param win : glfw window on which the event occured
+     * @param button : button on which the event occured
+     * @param mods : modifier bits
+     */
+    void click(GLFWwindow * win, int button, int action, int mods);
+    /**
+     * @brief key event
+     * @param key : key used to generate the event
+     * @param action : action performed with the key
+     */
+    void keyEvent(GLFWwindow * window, int key, int action);
 
 // private methodes
 private:

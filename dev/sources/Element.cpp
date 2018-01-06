@@ -1,8 +1,9 @@
 #include "Element.hpp"
 
 // Constructors and Destructors
-Element::Element(Pattern * pattern)
-    :pattern_(pattern)
+Element::Element(Pattern * pattern, OnClick onclick)
+    :onclick_(onclick)
+    ,pattern_(pattern)
     ,uniform_values_(pattern->getSize(),{0,0,0})
 {
     for(unsigned i = 0; i < uniform_values_.size(); ++i){
@@ -28,6 +29,10 @@ void Element::setValue(unsigned i, GLfloat x, GLfloat y, GLfloat z){
     uniform_values_[i][2] = z;
 }
 
+void Element::setOnClick(OnClick onclick){
+    onclick_ = onclick;
+}
+
 // other methods
 void Element::draw() const{
     if(pattern_){
@@ -36,4 +41,8 @@ void Element::draw() const{
 	    pattern_->setUniform(i,uniform_values_[i][0],uniform_values_[i][1],uniform_values_[i][2]);
 	pattern_->draw();
     }
+}
+
+void Element::click(Window * window,  int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod){
+    onclick_(window,this,states,action,mod);
 }

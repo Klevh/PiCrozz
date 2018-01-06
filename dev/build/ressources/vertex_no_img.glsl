@@ -22,6 +22,7 @@ void main(){
      pos = pos
            * mat2(angle.x ,-angle.y,
      	      	  angle.y , angle.x);
+     pos -= (vec2(1,1) - myRatio.xy);
 
-     gl_Position = vec4(pos + myOffset.xy , myPlan.x, 1.f);
+     gl_Position = vec4(pos + (myOffset.xy * 2) , myPlan.x, 1.f);
 }

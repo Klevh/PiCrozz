@@ -7,23 +7,34 @@ extern "C"{
 }
 
 #include <vector>
+#include <functional>
 
 #include "Pattern.hpp"
 #include "Vec3.hpp"
 
+class Window;
+
 class Element{
+    /**
+     * @brief Element's onclick behavior type, it is a function/lambda/foncter having the same parameters as mouse button callback of GLFW but there is an Element * between the GLFWwindow * and the first int
+     */
+    typedef std::function <void(Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int)> OnClick_window;
+    
+    OnClick_window onclick_;
+    ///< on click element's behavior
     Pattern * pattern_;
     ///< pattern to be followed by the element
     std::vector< Vec3 > uniform_values_;
     ///< pattern uniform's values
     
 public:
+    typedef OnClick_window OnClick;
 // Constructors and Destructors
     /**
      * @brief Element's constructor
      * @param pattern : pattern of the element
      */
-    Element(Pattern * pattern);
+    Element(Pattern * pattern, OnClick onclick = [](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int){});
     /**
      * @brief Element's destructor
      */
@@ -51,12 +62,24 @@ public:
      * @param z : third value of the uniform
      */
     void setValue(unsigned i, GLfloat x, GLfloat y = 0, GLfloat z = 0);
+    /**
+     * @brief set the element's behavior on click
+     */
+    void setOnClick(OnClick onclick);
 
 // other methods
     /**
      * @brief Draw the element
      */
     virtual void draw() const;
+    /**
+     * @brief Click on the element
+     * @param window : window that received the event
+     * @param states : GLFW statue of all buttons
+     * @param action : GLFW_PRESS or GLFW_RELEASE
+     * @param mods : modifier bit (see http://www.glfw.org/docs/latest/group__mods.html)
+     */
+    void click(Window * window, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod);
 };
 
 #endif

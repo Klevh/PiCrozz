@@ -13,6 +13,8 @@ GLFW/glfw3.h
 -
 vector
 -
+functional
+-
 Pattern.hpp
 ../headers/Pattern.hpp
 Vec3.hpp
@@ -64,6 +66,8 @@ string
 exception
 -
 vector
+-
+chrono
 -
 GL/glew.h
 -
