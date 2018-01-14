@@ -56,7 +56,7 @@ public:
     /**
      * @brief bind the pattern's VAO
      */
-    void bindVAO();
+    void bindVAO() const;
     /**
      * @brief load the value of a uniform to the GPU
      * @param i : index of the uniform to be loaded

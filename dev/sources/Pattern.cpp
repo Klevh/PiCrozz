@@ -51,7 +51,7 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
     }
 }
 
-void Pattern::bindVAO(){
+void Pattern::bindVAO() const{
     glBindVertexArray(VAO);
     Errors::glGetError("Pattern::bindVAO::glBindVertexArray");
 }
