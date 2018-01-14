@@ -1,5 +1,7 @@
 #include "Window.hpp"
 
+#include <sstream>
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -30,6 +32,7 @@ static void key_callback(GLFWwindow* win, int key, int scancode, int action, int
 const Window::STATE_VALUE Window::P_MENU = MENU;
 const Window::STATE_VALUE Window::P_GAME = GAME;
 const Window::STATE_VALUE Window::P_QUIT = QUIT;
+const char * Window::MENU_TEXT[2] = {"START", "QUIT"};
 
 bool Window::uniq_ = true;
 bool Window::uniq_init_ = true;
@@ -39,8 +42,10 @@ Window::Window()
     :window_(nullptr)
     ,elements_(COUNT)
     ,pattern_no_img_({-1,1,0,0,-1,-1,0,0,1,-1,0,0,1,-1,0,0,1,1,0,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myColor","myRotation"})
-    ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation"}, "ressources/pixel.jpg")
+    ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation","sampler"})
     ,state_(MENU)
+    ,font_(nullptr)
+    ,figures_({nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr})
 {
     if(uniq_){
 	uniq_ = false;
@@ -50,6 +55,15 @@ Window::Window()
 }
 
 Window::~Window(){
+    if(font_){
+	TTF_CloseFont(font_);
+    }
+    for(SDL_Surface * s : figures_){
+	if(s){
+	    SDL_FreeSurface(s);
+	}
+    }
+    TTF_Quit();
     glfwTerminate();
 }
 
@@ -67,7 +81,8 @@ Window::STATE_VALUE Window::setState(Window::STATE_VALUE state){
 void Window::init(std::string title,int width,int height){
     if(uniq_init_){
 	uniq_init_ = false;
-	
+
+	// GLFW init
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -77,6 +92,7 @@ void Window::init(std::string title,int width,int height){
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
 
+	// GL Context init
 	window_ = glfwCreateWindow(width,height,title.c_str(),NULL,NULL);
 	int w,h;
 	glfwGetFramebufferSize(window_,&w,&h);
@@ -87,6 +103,7 @@ void Window::init(std::string title,int width,int height){
 	}
 	glfwMakeContextCurrent(window_);
 
+	// GLEW init
 	glewExperimental = GL_TRUE;
 	if(glewInit() != GLEW_OK){
 	    glfwTerminate();
@@ -94,9 +111,32 @@ void Window::init(std::string title,int width,int height){
 	}
 	glGetError();
 
+	// SDL2_ttf init
+	if(TTF_Init()){
+	    throw Errors::TTF_INIT_FAILED();
+	}
+
+	// Font creation
+	font_ = TTF_OpenFont("ressources/arial.ttf",30);
+	if(!font_){
+	    throw Errors::FontNotOpened("ressources/arial.ttf");
+	}
+
+	// Instanciating figures
+	std::ostringstream oss;
+	
+	for(unsigned i = 0; i < 10; ++i){
+	    oss << i;
+	    figures_[i] = TTF_RenderText_Blended(font_, oss.str().c_str(), {0, 0, 0, 0});
+	    oss.str("");
+	    if(!figures_[i]){
+		throw Errors::FontToSurface();
+	    }
+	}
+
 	// compiling programs
 	pattern_no_img_.init("ressources/vertex_no_img.glsl","ressources/fragment_no_img.glsl");
-	//pattern_img.init("ressources/vertex_img.glsl","ressources/fragment_img.glsl");
+	pattern_img_.init("ressources/vertex_img.glsl","ressources/fragment_img.glsl");
 	
 	// background color
 	glClearColor(1,1,.5,0);
@@ -231,11 +271,26 @@ void Window::menu_mode(){
 
     // buttons
     for(unsigned i = 0; i < 2; ++i){
+	// block
 	elements_[MENU].push_back(Element(&pattern_no_img_));
-	elements_[MENU][i].setValue(0,0.5); // set plan
-	elements_[MENU][i].setValue(1,.3,.2 + .2 * i); // set offset
-	elements_[MENU][i].setValue(2,.4,.1); // set size
-	elements_[MENU][i].setValue(3,.3,.3,.3); // set color
+	elements_[MENU][i * 2].setValue(0,0.5); // set plan
+	elements_[MENU][i * 2].setValue(1,.3,.2 + .2 * i); // set offset
+	elements_[MENU][i * 2].setValue(2,.4,.1); // set size
+	elements_[MENU][i * 2].setValue(3,.3,.3,.3); // set color
+
+	// text
+	elements_[MENU].push_back(Element(&pattern_img_));
+	elements_[MENU][i * 2 + 1].setValue(0,0.5); // set plan
+	elements_[MENU][i * 2 + 1].setValue(1,.3,.2 + .2 * i); // set offset
+	elements_[MENU][i * 2 + 1].setValue(2,.4,.1); // set size
+	
+	SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[i], {0,0,0,0});
+	if(!s){
+	    throw Errors::FontToSurface();
+	}
+
+	elements_[MENU][i * 2 + 1].setTexture(s);
+	elements_[MENU][i * 2 + 1].setTextureId(4);
     }
 
     elements_[MENU][0].setOnClick(
@@ -244,7 +299,7 @@ void Window::menu_mode(){
 		state_ = QUIT;
 	});
     
-    elements_[MENU][1].setOnClick(
+    elements_[MENU][2].setOnClick(
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = GAME;

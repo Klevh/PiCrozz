@@ -23,6 +23,8 @@ class Pattern{
     ///< VAO of the pattern
     GLuint VBO;
     ///< VBO of the pattern
+    GLuint texture_;
+    ///< texture
     
 public:
 // Constructors and Destructor
@@ -70,6 +72,18 @@ public:
      * @brief draw the pattern
      */
     void draw() const;
+    /**
+     * @brief set the texture of the pattern
+     * @param width : width of the texture
+     * @param height : height of the texture
+     * @param pixels : RGBA structure of the texture
+     */
+    void setTexture(int width, int height, void * pixels);
+    /**
+     * @brief update the texture's uniform
+     * @param id : id of the texture's uniform
+     */
+    void updateTexture(int id);
 };
 
 #endif

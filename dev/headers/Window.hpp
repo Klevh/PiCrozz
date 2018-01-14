@@ -11,6 +11,8 @@
 extern "C"{
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 }
 
 // personal headers
@@ -36,6 +38,12 @@ class Window{
     ///< pattern that does not support image
     enum STATE_VALUE{MENU, GAME, QUIT, COUNT} state_;
     ///< 'page' to be displayed
+    TTF_Font * font_;
+    ///< font of the text
+    std::vector<SDL_Surface *> figures_;
+    ///< all figures (from 0 to 9)
+    static const char * MENU_TEXT[2];
+    ///< menu text
 
 public:
 // public values available for changing "page"

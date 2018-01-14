@@ -75,6 +75,49 @@ namespace Errors{
 	 */
 	std::string what();
     };
+
+    /**
+     * @brief TTF initialisation failed
+     */
+    class TTF_INIT_FAILED : public std::exception{
+    public:
+	/**
+	 * @brief getter for the error message
+	 * @return The error message as a string
+	 */
+	std::string what();
+    };
+
+    /**
+     * @brief Font openning failed
+     */
+    class FontNotOpened : public std::exception{
+	std::string path_;
+	///< Personnalized message for the error
+    public:
+	/**
+	 * @brief Constructor
+	 * @param path : path of the font
+	 */
+	FontNotOpened(const std::string& message);
+	/**
+	 * @brief getter for the error message
+	 * @return The error message as a string
+	 */
+	std::string what();
+    };
+
+    /**
+     * @brief Failed to initialize a surface from a Font
+     */
+    class FontToSurface : public std::exception{
+    public:
+	/**
+	 * @brief getter for the error message
+	 * @return The error message as a string
+	 */
+	std::string what();
+    };
 }
 
 #endif

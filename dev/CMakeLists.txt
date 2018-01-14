@@ -53,6 +53,13 @@ ELSE()
   MESSAGE(ERROR " glfw3 not found")
 ENDIF()
 
+find_package(SDL2 REQUIRED)
+IF(SDL2_FOUND)
+  MESSAGE(INFO " SDL2 lib found at ${SDL2_LIBRARIES}")
+ELSE()
+  MESSAGE(ERROR " SDL2 not found")
+ENDIF()
+
 find_package(SDL2TTF REQUIRED)
 IF(SDLTTF_FOUND)
   MESSAGE(INFO " SDL2_ttf lib found at ${SDLTTF_LIBRARIES}")
@@ -74,7 +81,8 @@ target_link_libraries(
   ${GLEW_LIBRARIES}
   ${OPENGL_LIBRARIES}
   glfw
-  ${SDL2TTF_LIBRARIES}
+  -lSDL2
+  -lSDL2_ttf
 )
 
 # adding include dir
