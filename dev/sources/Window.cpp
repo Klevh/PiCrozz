@@ -38,13 +38,14 @@ bool Window::uniq_init_ = true;
 Window::Window()
     :window_(nullptr)
     ,elements_(COUNT)
-    ,pattern_no_img_({-1.,1.,-1.,-1.,1.,-1.,1.,-1.,1.,1.,-1.,1.},{"myPlan","myOffset","myRatio","myColor","myRotation"})
-    ,pattern_img_({},{})
+    ,pattern_no_img_({-1,1,0,0,-1,-1,0,0,1,-1,0,0,1,-1,0,0,1,1,0,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myColor","myRotation"})
+    ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation"}, "ressources/pixel.jpg")
     ,state_(MENU)
 {
-    if(uniq_)
+    if(uniq_){
 	uniq_ = false;
-    else
+	
+    }else
 	throw WindowInstancedTwice();
 }
 

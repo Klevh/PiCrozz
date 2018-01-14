@@ -30,8 +30,9 @@ public:
      * @brief Pattern constructor
      * @param triangle : list of triangles
      * @param uniforms : list of uniforms name
+     * @param texture : path of the texture to be loaded, if any
      */
-    Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms);
+    Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms, const std::string& texture = "");
 
 // getters
     /**

@@ -1,7 +1,7 @@
 #include "Pattern.hpp"
 
 // Constructors and Destructor
-Pattern::Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms)
+Pattern::Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms, const std::string& texture)
     :program_()
     ,uniform_id_(uniforms.size())
     ,uniform_names_(uniforms)
@@ -33,14 +33,24 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
     Errors::glGetError("Pattern::init::glBufferData");
     
     glEnableVertexAttribArray(0);
-    Errors::glGetError("Pattern::init::glEnableVertexAtrribArray");
+    Errors::glGetError("Pattern::init::glEnableVertexAtrribArray(0)");
     glVertexAttribPointer(0,
 			  2,
 			  GL_FLOAT,
 			  GL_FALSE,
-			  2*sizeof(GLfloat),
+			  4*sizeof(GLfloat),
 			  (GLvoid*)0);
-    Errors::glGetError("Pattern::init::glVertexAtrribArray");
+    Errors::glGetError("Pattern::init::glVertexAtrribArray(0)");
+    
+    glEnableVertexAttribArray(1);
+    Errors::glGetError("Pattern::init::glEnableVertexAtrribArray(1)");
+    glVertexAttribPointer(1,
+			  2,
+			  GL_FLOAT,
+			  GL_FALSE,
+			  4*sizeof(GLfloat),
+			  (GLvoid*)2);
+    Errors::glGetError("Pattern::init::glVertexAtrribArray(1)");
   
     glBindVertexArray(0);
     Errors::glGetError("Pattern::init::glBindVertexArray");
