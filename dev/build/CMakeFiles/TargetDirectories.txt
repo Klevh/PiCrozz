@@ -1,3 +1,0 @@
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/build/CMakeFiles/edit_cache.dir
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/build/CMakeFiles/rebuild_cache.dir
-/home/baptiste/Programmation/C++/GrosProjets/PiCrozz/dev/build/CMakeFiles/PiCrozz.dir

@@ -1,3 +1,4 @@
 ./ressources/README.txt
 build
 build/*
+sources/*.o
