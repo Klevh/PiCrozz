@@ -43,6 +43,8 @@ class Window{
     ///< font of the text
     std::vector<SDL_Surface *> figures_;
     ///< all figures (from 0 to 9)
+    Picross grid_;
+    ///< picross grid of the game
 
 public:
 // public values available for changing "page"
@@ -116,6 +118,10 @@ private:
      * @brief Initialize choice mode and display
      */
     void choice_mode();
+    /**
+     * @brief load a grid from 
+     */
+    void load_grid(const std::string& path);
 
 // public classes
 public:

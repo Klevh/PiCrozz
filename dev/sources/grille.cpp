@@ -148,8 +148,11 @@ Picross::Picross(const Picross & p)
     : title(p.getTitle()), author(p.getAuthor()),
       copyright(p.getCopyright()), nbLignes(p.getNbLignes()),
       nbColonnes(p.getNbColonnes()), colors(p.getColors())
-{     
-     grille.resize(nbLignes);
+{
+    *this = p;
+}
+
+Picross& Picross::operator=(const Picross& p){grille.resize(nbLignes);
      for (int i = 0; i<nbLignes; i++) {
 	  grille[i].resize(nbColonnes);
 	  for(int j = 0; j<nbColonnes; j++) {

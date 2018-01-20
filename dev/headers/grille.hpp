@@ -68,6 +68,7 @@ public:
     Picross();
     Picross(const std::string &); // à partir d'un fichier XML
     Picross(const Picross &); // contructeur de copie
+    Picross& operator=(const Picross&);
 
     //getters
     int getNbLignes() const;
