@@ -49,6 +49,42 @@ static string getXMLText (tinyxml2::XMLElement * elmt, const string& name) {
 	  res="";
      return res; 
 }
+static string getXMLAttributeText(tinyxml2::XMLElement* elmt, const string& name, const char * type) {
+
+     const char * attribute_val = nullptr;
+     const char * value;
+     string s_attr;
+     string s_val;
+     string res;
+
+     attribute_val = (char*) elmt->Value();
+     if (attribute_val == nullptr)
+      s_attr = "";
+     else
+      s_attr = attribute_val;
+     
+
+     value = elmt->Attribute(type);
+     if (value == nullptr)
+      s_val = "";
+     else
+      s_val = value;
+
+     if (s_attr == name)
+      res = s_val;
+     else
+      res="";
+     
+     return res;    
+
+}
+static int getXMLInt(tinyxml2::XMLElement* elmt) {
+
+     int res = -1;
+     elmt->QueryIntText(&res);
+
+     return res; 
+}
 
          //class InfoCase
 
@@ -81,11 +117,54 @@ Colors::Colors(const Colors & c)
 //getters
 int Colors::getNbColors() const {return nbColors;}
 const string& Colors::getDefaultColor() const {return defaultColor;}
-const vector<tuple<string,int>>& Colors::getColorsList() const {return colorsList;}
+//vector<tuple<string,int,char>> Colors::getColorsList() const {return colorsList;}
+const vector<tuple<string,int,char>>& Colors::getColorsList() const {return colorsList;}
+//vector<tuple<string,int,char>> const& Colors::getColorsList() const {return colorsList;}
+
+int Colors::getColorValue(string s) {
+    bool fin = false;
+    unsigned i = 0;
+    int res = -1;
+    while (!fin && i<colorsList.size()) {
+
+        if(std::get<0> (colorsList[i]) == s) {
+            res = std::get<1> (colorsList[i]);
+            fin = true;
+        }
+        ++i;
+    }
+
+    return res;
+}
+
+char Colors::getColorChar(int c) {
+    bool fin = false;
+    unsigned i = 0;
+    char res = ' ';
+    while (!fin && i<colorsList.size()) {
+
+        if(std::get<1> (colorsList[i]) == c) {
+            res = std::get<2> (colorsList[i]);
+            fin = true;
+        }
+        ++i;
+    }
+
+    return res;
+}
+
 
 //setters
 void Colors::setNbColors (int nb) {nbColors = nb;}
-void Colors::setDefaultColor(const string& c) {defaultColor = c;}
+void Colors::setDefaultColor(string c) {defaultColor = c;}
+void Colors::addColor(string s,int nb,char c) {
+    tuple<string,int,char> t;
+    std::get<0> (t) = s;
+    std::get<1> (t) = nb;
+    std::get<2> (t) = c;
+
+    colorsList.push_back(t);
+}
 
 
 
@@ -109,16 +188,21 @@ Picross::Picross(const string & path) {
      XMLCheckResult(eResult);
      
      tinyxml2::XMLNode * pRoot = xmlDoc.FirstChildElement("puzzleset"); //section puzzleset
+     
+     tinyxml2::XMLElement * pElement = pRoot->FirstChildElement("puzzle"); //tricherie pour que ca fonctionne (ne fonctionne pas si on fait cet appel après la ligne suivante)
      pRoot = pRoot->FirstChildElement("puzzle"); //section puzzle
 
      //selectionner la couleur par défaut
+     colors.setDefaultColor(getXMLAttributeText(pElement, "puzzle", "defaultcolor"));
 
+     //cout<<colors.getDefaultColor()<<"   bouh"<< endl;
      
      /*if (pRoot == nullptr)
        return tinyxml2::XML_ERROR_FILE_READ_ERROR;*/
 
-     tinyxml2::XMLElement * pElement = pRoot->FirstChildElement("title");
+     pElement = pRoot->FirstChildElement("title");
 
+     
      title = getXMLText (pElement,"title");
      SHOW_LOG(title);
 
@@ -136,11 +220,12 @@ Picross::Picross(const string & path) {
      description = getXMLText (pElement,"description");
      SHOW_LOG(description);
      
-     //vector de tuples<string, char, int> pour stocker toutes les couleurs
-     //dans une classe ?
-     //stocker la couleur par défaut pour après
-     
-     
+     pElement = pRoot->FirstChildElement("color");
+     getXMLColors(pElement);
+
+     pElement = pRoot->FirstChildElement("clues");
+     getXMLGrid(pElement);
+
 }
 
 
@@ -190,3 +275,115 @@ const string& Picross::getDescription() const {return description;}
 const vector< vector<InfoCase> >& Picross::getGrille() const {return grille;}
 const vector< vector<InfoCase> >& Picross::getIndicationsLignes() const {return indicationsLignes;}
 const vector< vector<InfoCase> >& Picross::getIndicationsColonnes() const {return indicationsColonnes;}
+
+
+//setters
+
+void Picross::addIndicationsLignes (int num_ligne, int type, int color) {
+    InfoCase i(type,color);
+    indicationsLignes[num_ligne].push_back(i);
+}
+
+void Picross::addIndicationsColonnes (int num_colonne, int type, int color) {
+    InfoCase i(type,color);
+    indicationsColonnes[num_colonne].push_back(i);
+}
+
+void Picross::setGrilleIJ(int i, int j, int type, int color) {
+    grille[i][j].setType(type);
+    grille[i][j].setColor(color);
+}
+
+
+//xml
+void Picross::getXMLColors(tinyxml2::XMLElement* elmt) {
+
+    while (elmt != nullptr) {
+
+        const char * tmp = getXMLAttributeText(elmt,"color","char").c_str();
+        char c = tmp[0];
+
+        //std::get<1>(t) = getXMLInt(elmt);
+        //std::get<1>(t) = atoi (getXMLText(elmt,"color").c_str());
+        //std::get<1>(t) = std::stoul(getXMLText(elmt,"color").c_str(), nullptr, 16);
+
+        colors.addColor(getXMLAttributeText(elmt,"color","name"), std::stoul(getXMLText(elmt,"color").c_str(), nullptr, 16), c);
+
+        elmt = elmt->NextSiblingElement("color");
+    }
+
+}
+
+
+void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
+    tinyxml2::XMLElement * elmt_line = elmt->FirstChildElement("line");
+    tinyxml2::XMLElement * elmt_count = elmt_line->FirstChildElement("count");
+    int i=0,j=0; //compteurs de nb lignes et colonnes;
+
+
+    //ajout des indications sur les colonnes;
+    while (elmt_line != nullptr) {
+        //cout<<"size: " << indicationsColonnes.size() << "   ";
+        indicationsColonnes.resize(indicationsColonnes.size()+1);
+        //cout<<"size: " << indicationsColonnes.size() <<  "      j: " << j <<endl;
+        
+        while(elmt_count != nullptr) {
+
+            string s = getXMLAttributeText(elmt_count,"count","color");
+            if(s == "")
+                s=colors.getDefaultColor();
+
+            int taille = getXMLInt(elmt_count);
+
+            int color = colors.getColorValue(s);
+            //cout << "s: " << s << "      taille: " << taille <<"        color: " << color <<endl;
+
+            addIndicationsColonnes(j,taille,color);
+
+            elmt_count = elmt_count->NextSiblingElement("count");
+        }
+        elmt_line = elmt_line->NextSiblingElement("line");
+        if (elmt_line != nullptr)
+            elmt_count = elmt_line->FirstChildElement("count");
+        j++;
+        //cout << endl<<endl;
+    }
+
+
+    elmt_line = elmt->NextSiblingElement("clues")->FirstChildElement("line"); // on se place sur les lignes
+    elmt_count = elmt_line->FirstChildElement("count");
+    while (elmt_line != nullptr) {
+        //cout<<"size: " << indicationsLignes.size() << "   ";
+        indicationsLignes.resize(indicationsLignes.size()+1);
+        //cout<<"size: " << indicationsLignes.size() <<  "      i: " << i <<endl;
+        
+        while(elmt_count != nullptr) {
+
+            string s = getXMLAttributeText(elmt_count,"count","color");
+            if(s == "")
+                s=colors.getDefaultColor();
+
+            int taille = getXMLInt(elmt_count);
+
+            int color = colors.getColorValue(s);
+            //cout << "s: " << s << "      taille: " << taille <<"        color: " << color <<endl;
+
+            addIndicationsLignes(i,taille,color);
+
+            elmt_count = elmt_count->NextSiblingElement("count");
+        }
+        elmt_line = elmt_line->NextSiblingElement("line");
+        if (elmt_line != nullptr)
+            elmt_count = elmt_line->FirstChildElement("count");
+        i++;
+        //cout << endl<<endl;
+    }
+
+    nbLignes = i;
+    nbColonnes = j;
+
+    //on "alloue" la grille
+    grille.resize(i);
+    for(int k = 0; j<i; k++)
+        grille[k].resize(j);
+}
