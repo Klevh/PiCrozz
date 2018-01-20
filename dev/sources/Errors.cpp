@@ -41,3 +41,21 @@ Errors::ParamError::ParamError(const std::string& message)
 std::string Errors::ParamError::what(){
     return "Bad parameter :\n\t" + msg_;
 }
+
+// TTF_INIT_FAILED
+std::string Errors::TTF_INIT_FAILED::what(){
+    return "SDL2_ttf initialization failed";
+}
+
+// FontNotOpened
+Errors::FontNotOpened::FontNotOpened(const std::string& path)
+    :path_(path)
+{}
+std::string Errors::FontNotOpened::what(){
+    return "Font could not be opened\n\tLocated at : " + path_;
+}
+
+// FontToSurface
+std::string Errors::FontToSurface::what(){
+    return "Surface could not be created from font";
+}

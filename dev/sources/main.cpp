@@ -19,6 +19,8 @@ int main(int, char**){
 	SHOW_WHERE(Window::WindowInstancedTwice,wit);
     }catch(Window::WindowNotCreated& wnc){
 	SHOW_WHERE(Window::WindowNotCreated,wnc);
+    }catch(Errors::TTF_INIT_FAILED& tif){
+	SHOW_WHERE(Errors::TTF_INIT_FAILED, tif);
     }catch(std::exception& e){
 	SHOW_WHERE(std::exception,e);
     }catch(...){

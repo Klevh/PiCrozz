@@ -29,6 +29,9 @@ set_target_properties(
   CXX_EXTENSIONS OFF)
 
 # trouver les packages
+
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 find_package(OpenGL REQUIRED)
 IF(OpenGL_FOUND)
   MESSAGE(INFO " OpenGL lib found at ${OpenGL_LIBRARIES}")
@@ -50,6 +53,20 @@ ELSE()
   MESSAGE(ERROR " glfw3 not found")
 ENDIF()
 
+find_package(SDL2 REQUIRED)
+IF(SDL2_FOUND)
+  MESSAGE(INFO " SDL2 lib found at ${SDL2_LIBRARIES}")
+ELSE()
+  MESSAGE(ERROR " SDL2 not found")
+ENDIF()
+
+find_package(SDL2TTF REQUIRED)
+IF(SDLTTF_FOUND)
+  MESSAGE(INFO " SDL2_ttf lib found at ${SDLTTF_LIBRARIES}")
+ELSE()
+  MESSAGE(ERROR " SDL2_ttf not found")
+ENDIF()
+
 # enlever la compilation des tests GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -64,6 +81,8 @@ target_link_libraries(
   ${GLEW_LIBRARIES}
   ${OPENGL_LIBRARIES}
   glfw
+  -lSDL2
+  -lSDL2_ttf
 )
 
 # adding include dir

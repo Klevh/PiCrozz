@@ -1,7 +1,7 @@
 #include "Pattern.hpp"
 
 // Constructors and Destructor
-Pattern::Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms)
+Pattern::Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms, const std::string& texture)
     :program_()
     ,uniform_id_(uniforms.size())
     ,uniform_names_(uniforms)
@@ -33,14 +33,24 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
     Errors::glGetError("Pattern::init::glBufferData");
     
     glEnableVertexAttribArray(0);
-    Errors::glGetError("Pattern::init::glEnableVertexAtrribArray");
+    Errors::glGetError("Pattern::init::glEnableVertexAtrribArray(0)");
     glVertexAttribPointer(0,
 			  2,
 			  GL_FLOAT,
 			  GL_FALSE,
-			  2*sizeof(GLfloat),
+			  4*sizeof(GLfloat),
 			  (GLvoid*)0);
-    Errors::glGetError("Pattern::init::glVertexAtrribArray");
+    Errors::glGetError("Pattern::init::glVertexAtrribArray(0)");
+    
+    glEnableVertexAttribArray(1);
+    Errors::glGetError("Pattern::init::glEnableVertexAtrribArray(1)");
+    glVertexAttribPointer(1,
+			  2,
+			  GL_FLOAT,
+			  GL_FALSE,
+			  4*sizeof(GLfloat),
+			  (GLvoid*)2);
+    Errors::glGetError("Pattern::init::glVertexAtrribArray(1)");
   
     glBindVertexArray(0);
     Errors::glGetError("Pattern::init::glBindVertexArray");
@@ -49,13 +59,16 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
 	uniform_id_[i] = glGetUniformLocation(program_.getId(), uniform_names_[i].c_str());
 	Errors::glGetError((std::string("Pattern::init::glGetUniformLocation  -  ") + uniform_names_[i]).c_str());
     }
+
+    glGenTextures(1,&texture_);
+    Errors::glGetError("Pattern::init::glGenTextures");
 }
 
 void Pattern::bindVAO() const{
     glBindVertexArray(VAO);
     Errors::glGetError("Pattern::bindVAO::glBindVertexArray");
 }
-#include <iostream>
+
 void Pattern::setUniform(unsigned i, GLfloat x, GLfloat y, GLfloat z) const{
     static unsigned b = 0;
     glUniform3f(uniform_id_[i],x,y,z);
@@ -65,4 +78,17 @@ void Pattern::setUniform(unsigned i, GLfloat x, GLfloat y, GLfloat z) const{
 void Pattern::draw() const{
     glDrawArrays(GL_TRIANGLES,0,triangles_.size());
     Errors::glGetError("Pattern::draw::glDrawArrays");
+}
+
+void Pattern::setTexture(int width, int height, void * pixels){
+    glBindTexture(GL_TEXTURE_2D, texture_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+}
+
+void Pattern::updateTexture(int id){
+    glBindTexture(GL_TEXTURE_2D, texture_);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(uniform_id_[id], 0);
 }

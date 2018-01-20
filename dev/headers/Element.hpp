@@ -4,6 +4,7 @@
 extern "C"{
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 }
 
 #include <vector>
@@ -26,6 +27,10 @@ class Element{
     ///< pattern to be followed by the element
     std::vector< Vec3 > uniform_values_;
     ///< pattern uniform's values
+    SDL_Surface * surface_;
+    ///< texture of the element, if any
+    int surface_id_;
+    ///< id of the texture in uniform_values_
     
 public:
     typedef OnClick_window OnClick;
@@ -64,8 +69,19 @@ public:
     void setValue(unsigned i, GLfloat x, GLfloat y = 0, GLfloat z = 0);
     /**
      * @brief set the element's behavior on click
+     * @param onclick : new behavior
      */
     void setOnClick(OnClick onclick);
+    /**
+     * @brief set the texture ID in the uniform vector
+     * @param id : id of the texture
+     */
+    void setTextureId(int id);
+    /**
+     * @brief set the element's texture
+     * @param texture : new texture of the element
+     */
+    void setTexture(SDL_Surface * texture);
 
 // other methods
     /**
