@@ -19,6 +19,7 @@ extern "C"{
 #include "Errors.hpp"
 #include "Element.hpp"
 #include "Pattern.hpp"
+#include "grille.hpp"
 
 class Window{
     // static attributes
@@ -36,14 +37,12 @@ class Window{
     ///< pattern that support image
     Pattern pattern_no_img_;
     ///< pattern that does not support image
-    enum STATE_VALUE{MENU, GAME, QUIT, COUNT} state_;
+    enum STATE_VALUE{MENU, GAME, QUIT, CHOICE, COUNT} state_;
     ///< 'page' to be displayed
     TTF_Font * font_;
     ///< font of the text
     std::vector<SDL_Surface *> figures_;
     ///< all figures (from 0 to 9)
-    static const char * MENU_TEXT[2];
-    ///< menu text
 
 public:
 // public values available for changing "page"
@@ -53,6 +52,8 @@ public:
     ///< state of the window when it is in the game
     static const STATE_VALUE P_QUIT;
     ///< state of the window when you want it to quit
+    static const STATE_VALUE P_CHOICE;
+    ///< state of the window when you chose the grid
     
 // constructors destructors
     /**
@@ -111,6 +112,10 @@ private:
      * @brief Initialize menu mode and display
      */
     void menu_mode();
+    /**
+     * @brief Initialize choice mode and display
+     */
+    void choice_mode();
 
 // public classes
 public:

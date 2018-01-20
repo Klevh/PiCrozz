@@ -32,7 +32,8 @@ static void key_callback(GLFWwindow* win, int key, int scancode, int action, int
 const Window::STATE_VALUE Window::P_MENU = MENU;
 const Window::STATE_VALUE Window::P_GAME = GAME;
 const Window::STATE_VALUE Window::P_QUIT = QUIT;
-const char * Window::MENU_TEXT[2] = {"START", "QUIT"};
+const Window::STATE_VALUE Window::P_CHOICE = CHOICE;
+static const char * MENU_TEXT[2] = {"START", "QUIT"};
 
 bool Window::uniq_ = true;
 bool Window::uniq_init_ = true;
@@ -197,9 +198,15 @@ void Window::run(){
     }
 }
 
+void Window::choice_mode(){
+
+    game_mode();
+}
+
 void Window::game_mode(){
     unsigned i = 0;
 
+    state_ = GAME;
     // TODO : when fusion with physic part made, transform this to be generic
     
     // grid 10 x 10
@@ -268,7 +275,7 @@ void Window::game_mode(){
 }
 
 void Window::menu_mode(){
-
+    state_ = MENU;
     // buttons
     for(unsigned i = 0; i < 2; ++i){
 	// block
