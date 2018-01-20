@@ -42,14 +42,14 @@ public:
     int getNbColors() const;
     const std::string& getDefaultColor() const;
     const std::vector<std::tuple<std::string,int>>& getColorsList() const;
-    int getColorValue(string);
+    int getColorValue(const std::string&);
     char getColorChar(int c);
     char getChar(int); //récupère le char associé à la valeur de la couleur stockée dans InfoCase
 
     //setters
     void setNbColors (int);
     void setDefaultColor(const std::string&);
-    void addColor(string,int,char);
+    void addColor(const std::string&,int,char);
 };
 
 
