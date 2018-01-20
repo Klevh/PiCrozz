@@ -2,19 +2,9 @@
 #define GRILLE_HPP
 
 #include <string>
-#include <fstream>
 #include <vector>
-#include <iostream>
-#include <cstdlib>
 #include <tuple>
 #include "tinyxml2.h"
-
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::vector;
-using std::string;
-using std::tuple;
 
 class InfoCase {
     // type de la case: vide = -1, croix = 0, case pleine = 1, plein_test = 2, croix_test = 3;
@@ -25,94 +15,90 @@ class InfoCase {
 
 public:
     //contructeurs
-     InfoCase();
-     InfoCase(int,int);
+    InfoCase();
+    InfoCase(int,int);
      
-     //getters
-     int getType() const;
+    //getters
+    int getType() const;
     int getColor() const;
      
-     //setters
-     void setType(int);
-     void setColor(int);
+    //setters
+    void setType(int);
+    void setColor(int);
 };
 
 
 class Colors {
-     int nbColors;  // 1 par défaut si grille noir et blanc
-     string defaultColor;
-     vector<tuple<string,int>> colorsList; //ou une map ? //pas besoin du char
+    int nbColors;  // 1 par défaut si grille noir et blanc
+    std::string defaultColor;
+    std::vector<std::tuple<std::string,int>> colorsList; //ou une map ? //pas besoin du char
      
 public:
-     //constructors
-     Colors();
-     Colors(const Colors &);
+    //constructors
+    Colors();
+    Colors(const Colors &);
 
-     //getters
-     int getNbColors() const;
-     string getDefaultColor() const;
-     vector<tuple<string,int>> getColorsList() const;
+    //getters
+    int getNbColors() const;
+    const std::string& getDefaultColor() const;
+    const std::vector<std::tuple<std::string,int>>& getColorsList() const;
 
-     //setters
-     void setNbColors (int);
-     void setDefaultColor(string);
+    //setters
+    void setNbColors (int);
+    void setDefaultColor(const std::string&);
 };
 
 
 
 
 class Picross {
-     string id; //mettre le nom du fichier (sans le ".xml")   //a faire
-     string title;
-     string author;
-     string copyright;
-     string description;
-     int nbLignes, nbColonnes;
-     Colors colors;
-     vector< vector<InfoCase> > grille; //tableau principal=lignes
-     vector< vector<InfoCase> > indicationsLignes;
-     vector< vector<InfoCase> > indicationsColonnes;
+    std::string id; //mettre le nom du fichier (sans le ".xml")   //a faire
+    std::string title;
+    std::string author;
+    std::string copyright;
+    std::string description;
+    int nbLignes, nbColonnes;
+    Colors colors;
+    std::vector< std::vector<InfoCase> > grille; //tableau principal=lignes
+    std::vector< std::vector<InfoCase> > indicationsLignes;
+    std::vector< std::vector<InfoCase> > indicationsColonnes;
      
 public:
-     //constructeurs
-     Picross();
-     Picross(const string &); // à partir d'un fichier XML
-     Picross(const Picross &); // contructeur de copie
+    //constructeurs
+    Picross();
+    Picross(const std::string &); // à partir d'un fichier XML
+    Picross(const Picross &); // contructeur de copie
 
-     //getters
-     int getNbLignes() const;
-     int getNbColonnes() const;
-     Colors getColors() const;
-     string getTitle() const;
-     string getAuthor() const;
-     string getCopyright() const;
-     string getDescription() const;
-     vector< vector<InfoCase> > getGrille() const;
-     vector< vector<InfoCase> > getIndicationsLignes() const;
-     vector< vector<InfoCase> > getIndicationsColonnes() const;
-
-     //xml
-     string getXMLText (tinyxml2::XMLElement* , string);//retourne val (ex: <title>val</title>
-     
+    //getters
+    int getNbLignes() const;
+    int getNbColonnes() const;
+    const Colors& getColors() const;
+    const std::string& getTitle() const;
+    const std::string& getAuthor() const;
+    const std::string& getCopyright() const;
+    const std::string& getDescription() const;
+    const std::vector< std::vector<InfoCase> >& getGrille() const;
+    const std::vector< std::vector<InfoCase> >& getIndicationsLignes() const;
+    const std::vector< std::vector<InfoCase> >& getIndicationsColonnes() const;
 };
 
 
 
 
 /*
-class OperationsQueue {
+  class OperationsQueue {
 
      
-public:
+  public:
 
-};*/
+  };*/
 
 
 
 class Resolution {
      
-     Picross * picross;
-     Picross res;
+    Picross * picross;
+    Picross res;
 
 public:
      
