@@ -153,8 +153,11 @@ Picross::Picross(const string & path) {
 }
 
 
-Picross::Picross(const Picross & p)
-    : title(p.getTitle()), author(p.getAuthor()),
+Picross::Picross(const Picross & p) {
+    *this = p;
+}
+
+Picross& Picross::operator=(const Picross& p): title(p.getTitle()), author(p.getAuthor()),
       copyright(p.getCopyright()), description(p.getDescription()),
       nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
       colors(p.getColors())
@@ -189,13 +192,9 @@ Picross::Picross(const Picross & p)
 
             setIndicationsColonnesIJ(i,j,p.getIndicationsColonnes()[i][j].getType(),p.getIndicationsColonnes()[i][j].getColor());
         }
-    }  
-}
-
-Picross& Picross::operator=(const Picross& p){
+    } 
      
-    Picross p2 (p);
-    return p2;
+    return *this;
 }
 
 //getters
