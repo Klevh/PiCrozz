@@ -1,6 +1,13 @@
 #include "Window.hpp"
 
+#define DEBUG
+
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 #include <sstream>
+#include <algorithm>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -47,10 +54,11 @@ Window::Window()
     ,state_(MENU)
     ,font_(nullptr)
     ,figures_({nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr})
+    ,grid_("ressources/5090.xml")
+    ,ihm_grid_()
 {
     if(uniq_){
 	uniq_ = false;
-	
     }else
 	throw WindowInstancedTwice();
 }
@@ -145,7 +153,7 @@ void Window::init(std::string title,int width,int height){
 	// generating all pages
 	game_mode();
 	menu_mode();
-	choice_mode();
+	//choice_mode();
 
 	// set user pointer of window_ with this
 	glfwSetWindowUserPointer(window_,this);
@@ -206,6 +214,16 @@ void Window::game_mode(){
     // TODO : when fusion with physic part made, transform this to be generic
 
     if(elements_.size() && grid_.getGrille().size()){
+	// emptying the current game placement
+	elements_[GAME].clear();
+
+	// initializing the ihm_grid_
+	ihm_grid_.clear();
+	ihm_grid_.resize(grid_.getGrille().size());
+	for(std::vector<GridCase>& v : ihm_grid_){
+	    v.resize(grid_.getGrille()[0].size());
+	}
+	
 	// white background
 	elements_[GAME].push_back(Element(&pattern_no_img_));
 	elements_[GAME][0].setValue(0,0.5); // set plan
@@ -213,24 +231,90 @@ void Window::game_mode(){
 	elements_[GAME][0].setValue(2,0.8,0.8); // set size
 	elements_[GAME][0].setValue(3,1,1,1); // set color
 	++i;
-	for(unsigned i = 0; i < 2 * grid_.getGrille().size() + 2; ++i)
+
+	for(unsigned j = 0; j < 2 * grid_.getGrille().size() + 2; ++j){
 	    elements_[GAME].push_back(Element(&pattern_no_img_));
+	}
+	
 	// vertical lines
 	for(unsigned j = i; j < i + grid_.getGrille().size(); ++j){
+	    //elements_[GAME].push_back(Element(&pattern_no_img_));
 	    elements_[GAME][j].setValue(0,0.5); // set plan
-	    elements_[GAME][j].setValue(1,0.198 + (j - i)*0.08*(grid_.getGrille().size() / 10.),0); // set offset
-	    elements_[GAME][j].setValue(2,0.002,0.8 * (grid_.getGrille().size() / 10.)); // set size
+	    elements_[GAME][j].setValue(1,0.198 + (j - i)*0.08 / (grid_.getGrille().size() / 10.),0); // set offset
+	    elements_[GAME][j].setValue(2,0.002,0.8); // set size
 	    elements_[GAME][j].setValue(3,0,0,0); // set color
 	}
 	i += 1 + grid_.getGrille().size();
+	
 	// horizontal lines
 	for(unsigned j = i; j < i + grid_.getGrille().size() + 1; ++j){
+	    //elements_[GAME].push_back(Element(&pattern_no_img_));
 	    elements_[GAME][j].setValue(0,0.5); // set plan
-	    elements_[GAME][j].setValue(1,0.198,(j - i)*0.08 * (grid_.getGrille().size() / 10.)); // set offset
-	    elements_[GAME][j].setValue(2,0.8 * (grid_.getGrille().size() / 10.),0.002); // set size
+	    elements_[GAME][j].setValue(1,0.198,(j - i)*0.08 / (grid_.getGrille().size() / 10.)); // set offset
+	    elements_[GAME][j].setValue(2,0.8,0.002); // set size
 	    elements_[GAME][j].setValue(3,0,0,0); // set color
 	}
-	i += 11;
+	i += 1 + grid_.getGrille().size();
+
+	// interaction of the white background
+	elements_[GAME][0].setOnClick(
+	    [&](Window * w, Element * e, int buttons[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mode, GLfloat x_, GLfloat y_){
+		size_t i = 1;
+		size_t x = x_ * grid_.getGrille().size();
+		size_t y = (1 - y_) * grid_.getGrille().size();
+		x = std::min((size_t)19,x);
+		y = std::min((size_t)19,y);
+
+		#ifdef DEBUG
+		std::cout << x << " - " << y << std::endl;
+		#endif
+
+		if(!ihm_grid_[x][y].e[0]){
+		    GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
+		    GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
+
+		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS){
+			// adding a block
+			elements_[GAME].push_back(Element(&pattern_no_img_));
+			
+			ihm_grid_[x][y].id[0] = elements_[GAME].size() - 1;
+			ihm_grid_[x][y].e[0] = &(elements_[GAME][ihm_grid_[x][y].id[0]]);
+			ihm_grid_[x][y].state = 0;
+			
+			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(0, 0.5); // set plan
+			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(1, 0.204 + x * square_size , 0.805 - (y + 1) * square_size); // set offset
+			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(2, block_size, block_size); // set size
+			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(3, 0, 0, 0); // set color
+		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS){
+			// adding a cross
+		    }
+		}else{
+		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
+			// removing a block
+			for(int i = ihm_grid_[x][y].id[0]; i < elements_[GAME].size() - 1; ++i){
+			    elements_[GAME][i] = elements_[GAME][i + 1];
+			}
+
+			elements_[GAME].pop_back();
+
+			// setting new id for other blocks
+			for(int i = 0; i < ihm_grid_.size(); ++i){
+			    for(int j = 0; j < ihm_grid_[i].size(); ++j){
+				for(int k = 0; k < 2; ++k){
+				    if(ihm_grid_[i][j].e[k] && ihm_grid_[i][j].id[k] > ihm_grid_[x][y].id[0]){
+					--ihm_grid_[i][j].id[k];
+				    }
+				}
+			    }
+			}
+
+			// setting the removed block
+			ihm_grid_[x][y].e[0] = nullptr;
+		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
+			// removing a cross
+		    }
+		}
+	    });
 
 	// example of blocks
 	/*
@@ -300,23 +384,20 @@ void Window::menu_mode(){
     }
 
     elements_[MENU][0].setOnClick(
-	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods){
+	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = QUIT;
 	});
     
     elements_[MENU][2].setOnClick(
-	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods){
+	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = GAME;
 	});
 }
-#include <iostream>
+
 void Window::choice_mode(){
-    std::cout << "log" << std::endl;
     grid_ = Picross("ressources/5090.xml");
-    std::cout << "end" << std::endl;
-    std::cout << grid_.getGrille().size() << std::endl;
     game_mode();
 }
 
@@ -327,26 +408,33 @@ void Window::load_grid(const std::string& path){
 }
 
 void Window::click(GLFWwindow * win, int button, int action, int mods){
+    static unsigned last_click = 0;
     int states[GLFW_MOUSE_BUTTON_LAST + 1];
 
-    // reading
-    for(unsigned i = 0; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
-	states[i] = glfwGetMouseButton(win, i);
-    
-    // looking for clicked buttons
-    double x, y;
-    int w, h;
-    //getting cursor position and window size
-    glfwGetCursorPos(win, &x, &y);
-    glfwGetWindowSize(win, &w, &h);
-    
-    for(unsigned i = 0; i < elements_[state_].size(); ++i){
-	const Vec3 coords = elements_[state_][i].getValue(1);
-	const Vec3 dimension = elements_[state_][i].getValue(2);
+    unsigned clicked = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count();
 	
-	if(x >= coords[0] * w && x < (coords[0] + dimension[0]) * w
-	   && y < (1 - coords[1]) * h && y >= ((1 - coords[1]) - dimension[1]) * h)
-	    elements_[state_][i].click(this, states, action, mods);
+    if(clicked >= last_click + 200){
+	// reading
+	for(unsigned i = 0; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
+	    states[i] = glfwGetMouseButton(win, i);
+	
+	// looking for clicked buttons
+	double x, y;
+	int w, h;
+	//getting cursor position and window size
+	glfwGetCursorPos(win, &x, &y);
+	glfwGetWindowSize(win, &w, &h);
+	
+	for(unsigned i = 0; i < elements_[state_].size(); ++i){
+	    const Vec3 coords = elements_[state_][i].getValue(1);
+	    const Vec3 dimension = elements_[state_][i].getValue(2);
+	    
+	    if(x >= coords[0] * w && x < (coords[0] + dimension[0]) * w
+	       && y < (1 - coords[1]) * h && y >= ((1 - coords[1]) - dimension[1]) * h){
+		elements_[state_][i].click(this, states, action, mods, (x * 1. / w - coords[0]) / dimension[0], ((h - y) * 1. / h - coords[1]) / dimension[1]);
+	    }
+	}
+	last_click = clicked;
     }
 }
 

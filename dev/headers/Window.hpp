@@ -19,7 +19,7 @@ extern "C"{
 #include "Errors.hpp"
 #include "Element.hpp"
 #include "Pattern.hpp"
-#include "grille.hpp"
+#include "Picross.hpp"
 
 class Window{
     // static attributes
@@ -28,6 +28,23 @@ class Window{
     static bool uniq_init_;
     ///< allow the window to be initialized only once
 
+    // inner classes
+    /**
+     * @brief datas about the current grid (to simplify click detection)
+     */
+    struct GridCase{
+	Element * e[2];
+	///< elements composing the shape (2 for cross, 1 for block)
+	int state;
+        ///< 0 for block, 1 for cross
+	int id[2];
+	///< ids of the element in grid_
+
+	/**
+	 * @brief GridCase constructor
+	 */
+	GridCase():e{nullptr,nullptr},state(0),id{0,0}{}
+    };
     // non-static attributes
     GLFWwindow * window_;
     ///< glfw window object
@@ -45,6 +62,7 @@ class Window{
     ///< all figures (from 0 to 9)
     Picross grid_;
     ///< picross grid of the game
+    std::vector< std::vector< GridCase > > ihm_grid_;
 
 public:
 // public values available for changing "page"

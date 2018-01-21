@@ -17,9 +17,9 @@ class Window;
 
 class Element{
     /**
-     * @brief Element's onclick behavior type, it is a function/lambda/foncter having the same parameters as mouse button callback of GLFW but there is an Element * between the GLFWwindow * and the first int
+     * @brief Element's onclick behavior type, it is a function/lambda/foncter having the same parameters as mouse button callback of GLFW but there is an Element * between the GLFWwindow * and the first int. The two last GLfloat are the location of the click in the element (both from 0 to 1)
      */
-    typedef std::function <void(Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int)> OnClick_window;
+    typedef std::function <void(Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat)> OnClick_window;
     
     OnClick_window onclick_;
     ///< on click element's behavior
@@ -38,8 +38,9 @@ public:
     /**
      * @brief Element's constructor
      * @param pattern : pattern of the element
+     * @param onclick : behavior of the element
      */
-    Element(Pattern * pattern, OnClick onclick = [](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int){});
+    Element(Pattern * pattern, OnClick onclick = [](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){});
     /**
      * @brief Element's destructor
      */
@@ -51,12 +52,12 @@ public:
      * @param i : index of the value to be gotten
      * @return the GLfloat[3] of the uniform
      */
-    const Vec3 getValue(unsigned i) const;
+    const Vec3& getValue(unsigned i) const;
     /**
      * @brief getter for the Program ID
      * @return ID of the program
      */
-    const GLuint getId() const;
+    GLuint getId() const;
 
 // setters
     /**
@@ -94,8 +95,10 @@ public:
      * @param states : GLFW statue of all buttons
      * @param action : GLFW_PRESS or GLFW_RELEASE
      * @param mods : modifier bit (see http://www.glfw.org/docs/latest/group__mods.html)
+     * @param x : x coordinate of the click in the element (from 0 to 1)
+     * @param y : y coordinate of the click in the element (from 0 to 1)
      */
-    void click(Window * window, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod);
+    void click(Window * window, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod, GLfloat x, GLfloat y);
 };
 
 #endif

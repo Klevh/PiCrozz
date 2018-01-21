@@ -15,11 +15,11 @@ Element::Element(Pattern * pattern, OnClick onclick)
 }
 
 // getters
-const Vec3 Element::getValue(unsigned i) const{
+const Vec3& Element::getValue(unsigned i) const{
     return uniform_values_[i];
 }
 
-const GLuint Element::getId() const{
+GLuint Element::getId() const{
     return (pattern_ ? pattern_->getId() : 0);
 }
 
@@ -62,6 +62,6 @@ void Element::draw() const{
     }
 }
 
-void Element::click(Window * window,  int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod){
-    onclick_(window,this,states,action,mod);
+void Element::click(Window * window,  int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod, GLfloat x, GLfloat y){
+    onclick_(window,this,states,action,mod,x,y);
 }
