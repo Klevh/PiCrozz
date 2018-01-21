@@ -10,9 +10,15 @@ using std::tuple;
 Colors::Colors() {}
 Colors::Colors(const Colors & c)
     : nbColors(c.getNbColors()),
-      defaultColor(c.getDefaultColor()),
-      colorsList(c.getColorsList())
-{}
+      defaultColor(c.getDefaultColor())
+      
+{
+    int len = c.getColorsList().size();
+
+    for(int i=0; i<len; i++)
+        addColor(std::get<0> (c.getColorsList()[i]),  std::get<1> (c.getColorsList()[i]), std::get<2> (c.getColorsList()[i]));
+
+}
 
 //getters
 int Colors::getNbColors() const {return nbColors;}
