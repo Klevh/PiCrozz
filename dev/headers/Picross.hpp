@@ -10,7 +10,7 @@
 
 
 class Picross {
-    std::string id; //mettre le nom du fichier (sans le ".xml")   //a faire
+    std::string id; //mettre le nom du fichier (sans le ".xml")   //A FAIRE
     std::string title;
     std::string author;
     std::string copyright;
@@ -50,6 +50,9 @@ public:
 
     void setGrilleIJ(int,int,int,int);
     void setGrilleIJ(int,int,char); 
+
+    void setIndicationsLignesIJ(int,int,int,int);
+    void setIndicationsColonnesIJ(int,int,int,int);
 
     // xml
     void getXMLColors(tinyxml2::XMLElement*);

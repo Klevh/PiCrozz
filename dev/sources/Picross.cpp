@@ -155,36 +155,47 @@ Picross::Picross(const string & path) {
 
 Picross::Picross(const Picross & p)
     : title(p.getTitle()), author(p.getAuthor()),
-      copyright(p.getCopyright()), nbLignes(p.getNbLignes()),
-      nbColonnes(p.getNbColonnes()), colors(p.getColors())
+      copyright(p.getCopyright()), description(p.getDescription()),
+      nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
+      colors(p.getColors())
 {
-    *this = p;
-}
 
-Picross& Picross::operator=(const Picross& p){grille.resize(nbLignes);
-     for (int i = 0; i<nbLignes; i++) {
-	  grille[i].resize(nbColonnes);
-	  for(int j = 0; j<nbColonnes; j++) {
-	       grille[i][j].setType(p.getGrille()[i][j].getType());
-	       grille[i][j].setColor(p.getGrille()[i][j].getColor());
-	  }
-     }
+    grille.resize(nbLignes);
+    for (int i = 0; i<nbLignes; i++) {
+        grille[i].resize(nbColonnes);
+        for(int j = 0; j<nbColonnes; j++) {
+
+            setGrilleIJ(i,j,p.getGrille()[i][j].getType(),p.getGrille()[i][j].getColor());
+        }
+    }
      
+     cout<< "lignes" <<endl;
      indicationsLignes.resize(nbLignes);
      for(int i = 0; i<nbLignes; i++) {
-	  for(unsigned int j = 0; j<p.getIndicationsLignes().size(); j++) {
-	       indicationsLignes[i][j].setType(p.getIndicationsLignes()[i][j].getType());
-	       indicationsLignes[i][j].setType(p.getIndicationsLignes()[i][j].getColor());
-	  }
-     }
+        int len = p.getIndicationsLignes()[i].size();
+        indicationsLignes[i].resize(len);
+        for(unsigned int j = 0; j<len; j++) {
+
+            setIndicationsLignesIJ(i,j,p.getIndicationsLignes()[i][j].getType(),p.getIndicationsLignes()[i][j].getColor());
+        }
+    }
      
+     cout<< "Colonnes" <<endl;
      indicationsColonnes.resize(nbColonnes);
      for(int i = 0; i<nbColonnes; i++) {
-        for(unsigned int j = 0; j<p.getIndicationsColonnes().size(); j++) {
-	     indicationsColonnes[i][j].setType(p.getIndicationsColonnes()[i][j].getType());
-	     indicationsColonnes[i][j].setType(p.getIndicationsColonnes()[i][j].getColor());
+        int len = p.getIndicationsColonnes()[i].size();
+        indicationsColonnes[i].resize(len);
+        for(unsigned int j = 0; j<len; j++) {
+
+            setIndicationsColonnesIJ(i,j,p.getIndicationsColonnes()[i][j].getType(),p.getIndicationsColonnes()[i][j].getColor());
         }
-     }  
+    }  
+}
+
+Picross& Picross::operator=(const Picross& p){
+     
+    Picross p2 (p);
+    return p2;
 }
 
 //getters
@@ -240,6 +251,20 @@ void Picross::setGrilleIJ(int i, int j, char c) {
     grille[i][j].setType(0);
     grille[i][j].setColor(color);
 }
+
+
+void Picross::setIndicationsLignesIJ (int i, int j, int type, int color) {
+    
+    indicationsLignes[i][j].setType(type);
+    indicationsLignes[i][j].setColor(color);
+}
+
+void Picross::setIndicationsColonnesIJ (int i, int j, int type, int color) {
+
+    indicationsColonnes[i][j].setType(type);
+    indicationsColonnes[i][j].setColor(color);
+}
+
 
 //xml
 void Picross::getXMLColors(tinyxml2::XMLElement* elmt) {
@@ -356,6 +381,7 @@ void Picross::displayClassic() const {
     int max = getMaxSizeIndicationsColonnes();
     int size = 0;
 
+    /*
     for (int j = 0; j<max; j++) {
         
         cout<<"     |";
@@ -372,6 +398,16 @@ void Picross::displayClassic() const {
 
             cout<<endl;
         }
+    }*/
+
+
+    for (int i = 0; i<nbColonnes; i++) {
+        cout<<"|";
+        for (int j = 0; j<indicationsColonnes[i].size(); j++) {
+
+            cout<< indicationsColonnes[i][j].getType()<<"|";
+        }
+        cout<<endl;
     }
 
 
