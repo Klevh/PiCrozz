@@ -31,7 +31,7 @@ public:
 class Colors {
     int nbColors;  // 1 par défaut si grille noir et blanc
     std::string defaultColor;
-    std::vector<std::tuple<std::string,int>> colorsList; //ou une map ? //pas besoin du char
+    std::vector<std::tuple<std::string,int,char>> colorsList; //ou une map ? //pas besoin du char
      
 public:
     //constructors
@@ -41,10 +41,10 @@ public:
     //getters
     int getNbColors() const;
     const std::string& getDefaultColor() const;
-    const std::vector<std::tuple<std::string,int>>& getColorsList() const;
-    int getColorValue(const std::string&);
-    char getColorChar(int c);
-    char getChar(int); //récupère le char associé à la valeur de la couleur stockée dans InfoCase
+    const std::vector<std::tuple<std::string,int,char>>& getColorsList() const;
+    int getColorFromName(const std::string&) const;
+    char getCharFromColor(int) const; //récupère le char associé à la valeur de la couleur stockée dans InfoCase
+    int getColorFromChar(char) const;
 
     //setters
     void setNbColors (int);
@@ -86,15 +86,24 @@ public:
     const std::vector< std::vector<InfoCase> >& getIndicationsLignes() const;
     const std::vector< std::vector<InfoCase> >& getIndicationsColonnes() const;
     
+    //secondary getters
+     int getMaxSizeIndicationsLignes() const;
+     int getMaxSizeIndicationsColonnes() const;
+
     //setters
     void addIndicationsLignes (int, int, int);   //addIndicationsLignes(num_ligne,type,color) fait un push_back(InfoCase<int,int> i(type,color) ) à indicationsLignes[num_ligne]
     void addIndicationsColonnes (int, int, int); //idem pour indicationsColonnes
 
     void setGrilleIJ(int,int,int,int);
+    void setGrilleIJ(int,int,char); 
 
     // xml
     void getXMLColors(tinyxml2::XMLElement*);
     void getXMLGrid (tinyxml2::XMLElement*);
+
+
+    //display
+     void displayClassic() const;
 };
 
 

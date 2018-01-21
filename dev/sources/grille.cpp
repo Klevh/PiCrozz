@@ -1,10 +1,13 @@
 #include "grille.hpp"
 
 #include <fstream>
+#include <iostream>
 
 using std::vector;
 using std::string;
 using std::tuple;
+using std::cout;
+using std::endl;
 
 #ifdef XMLCheckResult
 #undef XMLCheckResult
@@ -49,6 +52,7 @@ static string getXMLText (tinyxml2::XMLElement * elmt, const string& name) {
 	  res="";
      return res; 
 }
+
 static string getXMLAttributeText(tinyxml2::XMLElement* elmt, const string& name, const char * type) {
 
      const char * attribute_val = nullptr;
@@ -117,11 +121,10 @@ Colors::Colors(const Colors & c)
 //getters
 int Colors::getNbColors() const {return nbColors;}
 const string& Colors::getDefaultColor() const {return defaultColor;}
-//vector<tuple<string,int,char>> Colors::getColorsList() const {return colorsList;}
 const vector<tuple<string,int,char>>& Colors::getColorsList() const {return colorsList;}
-//vector<tuple<string,int,char>> const& Colors::getColorsList() const {return colorsList;}
 
-int Colors::getColorValue(string s) {
+
+int Colors::getColorFromName(const string& s) const {
     bool fin = false;
     unsigned i = 0;
     int res = -1;
@@ -137,7 +140,7 @@ int Colors::getColorValue(string s) {
     return res;
 }
 
-char Colors::getColorChar(int c) {
+char Colors::getCharFromColor(int c) const {
     bool fin = false;
     unsigned i = 0;
     char res = ' ';
@@ -153,11 +156,26 @@ char Colors::getColorChar(int c) {
     return res;
 }
 
+int Colors::getColorFromChar(char c) const {
+    bool fin = false;
+    unsigned i = 0;
+    int res = -1;
+    while (!fin && i<colorsList.size()) {
+
+        if(std::get<2> (colorsList[i]) == c) {
+            res = std::get<1> (colorsList[i]);
+            fin = true;
+        }
+        ++i;
+    }
+
+    return res;
+}
 
 //setters
 void Colors::setNbColors (int nb) {nbColors = nb;}
-void Colors::setDefaultColor(string c) {defaultColor = c;}
-void Colors::addColor(string s,int nb,char c) {
+void Colors::setDefaultColor(const string& c) {defaultColor = c;}
+void Colors::addColor(const string& s,int nb,char c) {
     tuple<string,int,char> t;
     std::get<0> (t) = s;
     std::get<1> (t) = nb;
@@ -260,7 +278,7 @@ Picross& Picross::operator=(const Picross& p){grille.resize(nbLignes);
 	     indicationsColonnes[i][j].setType(p.getIndicationsColonnes()[i][j].getType());
 	     indicationsColonnes[i][j].setType(p.getIndicationsColonnes()[i][j].getColor());
         }
-     }
+     }  
 }
 
 //getters
@@ -275,6 +293,22 @@ const string& Picross::getDescription() const {return description;}
 const vector< vector<InfoCase> >& Picross::getGrille() const {return grille;}
 const vector< vector<InfoCase> >& Picross::getIndicationsLignes() const {return indicationsLignes;}
 const vector< vector<InfoCase> >& Picross::getIndicationsColonnes() const {return indicationsColonnes;}
+
+//secondary getters
+
+int Picross::getMaxSizeIndicationsLignes() const {
+    unsigned max = 0;
+    for(int i = 0; i<nbLignes; i++)
+        max = ( (max < indicationsLignes[i].size()) ? indicationsLignes[i].size() : max);
+    return max;
+}
+
+int Picross::getMaxSizeIndicationsColonnes() const {
+    unsigned max = 0;
+    for(int i = 0; i<nbColonnes; i++)
+        max = ( (max < indicationsColonnes[i].size()) ? indicationsColonnes[i].size() : max);
+    return max;
+}
 
 
 //setters
@@ -294,6 +328,12 @@ void Picross::setGrilleIJ(int i, int j, int type, int color) {
     grille[i][j].setColor(color);
 }
 
+void Picross::setGrilleIJ(int i, int j, char c) {
+    
+    int color = colors.getColorFromChar(c);
+    grille[i][j].setType(0);
+    grille[i][j].setColor(color);
+}
 
 //xml
 void Picross::getXMLColors(tinyxml2::XMLElement* elmt) {
@@ -335,7 +375,7 @@ void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
 
             int taille = getXMLInt(elmt_count);
 
-            int color = colors.getColorValue(s);
+            int color = colors.getColorFromName(s);
             //cout << "s: " << s << "      taille: " << taille <<"        color: " << color <<endl;
 
             addIndicationsColonnes(j,taille,color);
@@ -365,7 +405,7 @@ void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
 
             int taille = getXMLInt(elmt_count);
 
-            int color = colors.getColorValue(s);
+            int color = colors.getColorFromName(s);
             //cout << "s: " << s << "      taille: " << taille <<"        color: " << color <<endl;
 
             addIndicationsLignes(i,taille,color);
@@ -384,6 +424,82 @@ void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
 
     //on "alloue" la grille
     grille.resize(i);
-    for(int k = 0; j<i; k++)
+    for (unsigned k = 0; k<grille.size(); k++)
         grille[k].resize(j);
+
+    //on init la grille
+
+    for (int i=0; i < nbLignes; i++) {
+        
+        for (int j=0; j < nbColonnes; j++) {
+
+            this->setGrilleIJ(i,j,-1,-1);
+        }
+    }    
+
+}
+
+
+
+void Picross::displayClassic() const {
+
+    int margin = 10;
+    int temp = 0;
+    //affichage grille + indications lignes après
+
+    int max = getMaxSizeIndicationsColonnes();
+    int size = 0;
+
+    for (int j = 0; j<max; j++) {
+        
+        cout<<"     |";
+        for (int i = 0; i<nbColonnes; i++) {
+
+            size = indicationsColonnes[i].size();
+
+
+            if (size < (max-j)) {
+                cout<<"  |";                
+            }
+            else
+                cout<< indicationsColonnes[i][size-j].getType()<<"|";
+
+            cout<<endl;
+        }
+    }
+
+
+    for(int i = 0; i<nbLignes; i++) {
+
+        cout << i;
+        if(i<10)
+            cout <<":   |";
+        else
+            cout <<":  |";
+
+        for(int j = 0; j<nbColonnes; j++) {
+            int color = grille[i][j].getColor();
+            //cout << "color: " << color <<endl;
+            cout << colors.getCharFromColor(color) << "|";
+        }
+        cout<<"     |";
+        
+        for (unsigned k = 0; k<indicationsLignes[i].size(); k++) {
+            temp = indicationsLignes[i][k].getType();
+            if (temp!=0) {
+                if (temp<10)
+                    cout << " " << temp << "|";
+                else
+                    cout<< temp << "|";
+            }
+        }
+        cout<<endl;
+        /*
+        cout << "     .";
+        for(int j = 0; j<nbColonnes; j++) {
+            cout << "-.";
+        }
+        cout<<endl;*/
+    }
+
 }
