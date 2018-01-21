@@ -1,58 +1,12 @@
-#ifndef GRILLE_HPP
-#define GRILLE_HPP
+#ifndef PICROSS_HPP
+#define PICROSS_HPP
 
 #include <string>
 #include <vector>
 #include <tuple>
 #include "tinyxml2.h"
-
-class InfoCase {
-    // type de la case: vide = -1, croix = 0, case pleine = 1, plein_test = 2, croix_test = 3;
-    // ces valeurs sont ulilisés dans l'attribut grille de la classe Grille
-    // pour les attributs indicationsLignes et indicationsColonnes de la classe Grille, type sera simplement la taille d'un bloc
-    int type;  
-    int color; //couleur de la case; ex: 0xFFFFFF
-
-public:
-    //contructeurs
-    InfoCase();
-    InfoCase(int,int);
-    
-    //getters
-    int getType() const;
-    int getColor() const;
-     
-    //setters
-    void setType(int);
-    void setColor(int);
-};
-
-
-class Colors {
-    int nbColors;  // 1 par défaut si grille noir et blanc
-    std::string defaultColor;
-    std::vector<std::tuple<std::string,int,char>> colorsList; //ou une map ? //pas besoin du char
-     
-public:
-    //constructors
-    Colors();
-    Colors(const Colors &);
-
-    //getters
-    int getNbColors() const;
-    const std::string& getDefaultColor() const;
-    const std::vector<std::tuple<std::string,int,char>>& getColorsList() const;
-    int getColorFromName(const std::string&) const;
-    char getCharFromColor(int) const; //récupère le char associé à la valeur de la couleur stockée dans InfoCase
-    int getColorFromChar(char) const;
-
-    //setters
-    void setNbColors (int);
-    void setDefaultColor(const std::string&);
-    void addColor(const std::string&,int,char);
-};
-
-
+#include "InfoCase.hpp"
+#include "Colors.hpp"
 
 
 class Picross {
@@ -143,4 +97,4 @@ public:
 
 
 
-#endif // GRILLE_HPP
+#endif // PICROSS_HPP

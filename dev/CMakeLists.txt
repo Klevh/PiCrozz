@@ -15,7 +15,9 @@ add_executable(
   sources/Element.cpp
   sources/Program.cpp
   sources/Pattern.cpp
-  sources/grille.cpp
+  sources/Picross.cpp
+  sources/Colors.cpp
+  sources/InfoCase.cpp
   sources/tinyxml2.cpp
   sources/Vec3.cpp
 )
