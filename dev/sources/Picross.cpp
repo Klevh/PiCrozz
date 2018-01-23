@@ -240,8 +240,17 @@ void Picross::addIndicationsColonnes (int num_colonne, int type, int color) {
 }
 
 void Picross::setGrilleIJ(int i, int j, int type, int color) {
+    std::tuple<int,int,InfoCase,InfoCase> t;
+    std::get<0> (t) = i;
+    std::get<1> (t) = j;
+    std::get<2> (t) = InfoCase(grille[i][j].getType(),grille[i][j].getColor());
+    std::get<3> (t) = InfoCase(type,color);
+    
     grille[i][j].setType(type);
     grille[i][j].setColor(color);
+
+
+    queue.addOp(t);
 }
 
 void Picross::setGrilleIJ(int i, int j, char c) {
@@ -444,3 +453,4 @@ void Picross::displayClassic() const {
     }
 
 }
+
