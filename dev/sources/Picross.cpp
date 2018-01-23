@@ -153,7 +153,7 @@ Picross::Picross(const string & path) {
 }
 
 
-Picross::Picross(const Picross & p) { : title(p.getTitle()), author(p.getAuthor()),
+Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor()),
       copyright(p.getCopyright()), description(p.getDescription()),
       nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
       colors(p.getColors())
