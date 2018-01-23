@@ -153,11 +153,16 @@ Picross::Picross(const string & path) {
 }
 
 
-Picross::Picross(const Picross & p)
-    : title(p.getTitle()), author(p.getAuthor()),
+Picross::Picross(const Picross & p) { : title(p.getTitle()), author(p.getAuthor()),
       copyright(p.getCopyright()), description(p.getDescription()),
       nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
       colors(p.getColors())
+{
+    *this = p;
+}
+
+
+Picross& Picross::operator=(const Picross& p)
 {
 
     grille.resize(nbLignes);
@@ -169,7 +174,7 @@ Picross::Picross(const Picross & p)
         }
     }
      
-     cout<< "lignes" <<endl;
+     //cout<< "lignes" <<endl;
      indicationsLignes.resize(nbLignes);
      for(int i = 0; i<nbLignes; i++) {
         int len = p.getIndicationsLignes()[i].size();
@@ -180,7 +185,7 @@ Picross::Picross(const Picross & p)
         }
     }
      
-     cout<< "Colonnes" <<endl;
+     //cout<< "Colonnes" <<endl;
      indicationsColonnes.resize(nbColonnes);
      for(int i = 0; i<nbColonnes; i++) {
         int len = p.getIndicationsColonnes()[i].size();
@@ -189,13 +194,9 @@ Picross::Picross(const Picross & p)
 
             setIndicationsColonnesIJ(i,j,p.getIndicationsColonnes()[i][j].getType(),p.getIndicationsColonnes()[i][j].getColor());
         }
-    }  
-}
-
-Picross& Picross::operator=(const Picross& p){
+    } 
      
-    Picross p2 (p);
-    return p2;
+    return *this;
 }
 
 //getters
@@ -241,8 +242,17 @@ void Picross::addIndicationsColonnes (int num_colonne, int type, int color) {
 }
 
 void Picross::setGrilleIJ(int i, int j, int type, int color) {
+    std::tuple<int,int,InfoCase,InfoCase> t;
+    std::get<0> (t) = i;
+    std::get<1> (t) = j;
+    std::get<2> (t) = InfoCase(grille[i][j].getType(),grille[i][j].getColor());
+    std::get<3> (t) = InfoCase(type,color);
+    
     grille[i][j].setType(type);
     grille[i][j].setColor(color);
+
+
+    queue.addOp(t);
 }
 
 void Picross::setGrilleIJ(int i, int j, char c) {
@@ -445,3 +455,4 @@ void Picross::displayClassic() const {
     }
 
 }
+
