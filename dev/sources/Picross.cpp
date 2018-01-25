@@ -155,10 +155,14 @@ Picross::Picross(const string & path) {
 }
 
 
-Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor()),
-      copyright(p.getCopyright()), description(p.getDescription()),
-      nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
-      colors(p.getColors())
+Picross::Picross(const Picross& p)
+    :title(p.getTitle())
+    ,author(p.getAuthor())
+    ,copyright(p.getCopyright())
+    ,description(p.getDescription())
+    ,nbLignes(p.getNbLignes())
+    ,nbColonnes(p.getNbColonnes())
+    ,colors(p.getColors())
 {
     *this = p;
 }
@@ -252,7 +256,6 @@ void Picross::setGrilleIJ(int i, int j, int type, int color) {
     
     grille[i][j].setType(type);
     grille[i][j].setColor(color);
-
 
     //queue.addOp(t);
 }

@@ -20,6 +20,7 @@ add_executable(
   sources/InfoCase.cpp
   sources/tinyxml2.cpp
   sources/Vec3.cpp
+  #sources/OperationsQueue.cpp
 )
 
 # c++ version
