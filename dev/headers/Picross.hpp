@@ -53,6 +53,7 @@ public:
     const std::vector< std::vector<InfoCase> >& getGrille() const;
     const std::vector< std::vector<InfoCase> >& getIndicationsLignes() const;
     const std::vector< std::vector<InfoCase> >& getIndicationsColonnes() const;
+    const OperationsQueue& getQueue() const;
     
     //secondary getters
     /**
@@ -86,16 +87,41 @@ public:
      * @param type : type of the box block
      * @param color : color of the box block
      */
-    void setGrilleIJ(int i, int j, int type, int color);
+
+    /**
+     * @brief sets grille[i][j] without setting the queue (type and color set to -1)
+     * @param i : row id
+     * @param j : column id
+     */
+    void initiateGrilleIJ(int i, int j);
+    /**
+     * @brief sets grille[i][j] without setting the queue
+     * @param i : row id
+     * @param j : column id
+     * @param type : type of the box block
+     * @param color : color of the box block
+     */
+    void initiateGrilleIJ(int i, int j, int type, int color);
+ 
     /**
      * @brief sets grille[i][j] knowing only the char of the color (will set type and color)
+     * also sets the queue
      * @param i : row id
      * @param j : column id
      * @param char : char of the color of the box
      */
+    void setGrilleIJ(int i, int j, int type, int color);
+    /**
+     * @brief sets grille[i][j]
+     * also sets the queue
+     * @param i : row id
+     * @param j : column id
+     * @param type : type of the box block
+     * @param color : color of the box block
+     */
     void setGrilleIJ(int i, int j, char c); 
 
-    /**
+    /*
      * @brief sets indicationsLignes[i][j] with type and color of the box
      * @param i : row id
      * @param j : column id

@@ -4,24 +4,35 @@
 #include <vector>
 #include <tuple>
 
+#include "InfoCase.hpp"
+
+
 
 class OperationsQueue {
+    int realLast;
+    int currentLast;
     std::vector<std::tuple<int,int,InfoCase,InfoCase> > queue;
-    int last;
-    bool canWeForward;
+    //bool canWeForward;
 
 public:
 
+    //constructeur
     OperationsQueue();
 
-    void setLast(int); //inutile
+    //getter
+    int getRealLast() const;
+    int getCurrentLast() const;
 
-    int getLast() const;
-    bool getCanWeForward () const;
-    std::tuple<int,int,InfoCase,InfoCase> getPrevious() const;
-    std::tuple<int,int,InfoCase,InfoCase> getForward() const;
+    //tests
+    bool canWeForward() const;
+    bool canWePrevious() const;
+
+    //others
+    std::tuple<int,int,InfoCase,InfoCase> getPrevious();
+    std::tuple<int,int,InfoCase,InfoCase> getForward();
     void addOp (const std::tuple<int,int,InfoCase,InfoCase> &);
 
+    void display() const;
 };
 
 

@@ -153,14 +153,16 @@ Picross::Picross(const string & path) {
 }
 
 
-Picross::Picross(const Picross & p) {
-    *this = p;
-}
-
-Picross& Picross::operator=(const Picross& p): title(p.getTitle()), author(p.getAuthor()),
+Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor()),
       copyright(p.getCopyright()), description(p.getDescription()),
       nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
       colors(p.getColors())
+{
+    *this = p;
+}
+
+
+Picross& Picross::operator=(const Picross& p)
 {
 
     grille.resize(nbLignes);
@@ -168,27 +170,27 @@ Picross& Picross::operator=(const Picross& p): title(p.getTitle()), author(p.get
         grille[i].resize(nbColonnes);
         for(int j = 0; j<nbColonnes; j++) {
 
-            setGrilleIJ(i,j,p.getGrille()[i][j].getType(),p.getGrille()[i][j].getColor());
+            initiateGrilleIJ(i,j,p.getGrille()[i][j].getType(),p.getGrille()[i][j].getColor());
         }
     }
      
-     cout<< "lignes" <<endl;
+     //cout<< "lignes" <<endl;
      indicationsLignes.resize(nbLignes);
      for(int i = 0; i<nbLignes; i++) {
-        int len = p.getIndicationsLignes()[i].size();
+        unsigned len = p.getIndicationsLignes()[i].size();
         indicationsLignes[i].resize(len);
-        for(unsigned int j = 0; j<len; j++) {
+        for(unsigned j = 0; j<len; j++) {
 
             setIndicationsLignesIJ(i,j,p.getIndicationsLignes()[i][j].getType(),p.getIndicationsLignes()[i][j].getColor());
         }
     }
      
-     cout<< "Colonnes" <<endl;
+     //cout<< "Colonnes" <<endl;
      indicationsColonnes.resize(nbColonnes);
      for(int i = 0; i<nbColonnes; i++) {
-        int len = p.getIndicationsColonnes()[i].size();
+        unsigned len = p.getIndicationsColonnes()[i].size();
         indicationsColonnes[i].resize(len);
-        for(unsigned int j = 0; j<len; j++) {
+        for(unsigned j = 0; j<len; j++) {
 
             setIndicationsColonnesIJ(i,j,p.getIndicationsColonnes()[i][j].getType(),p.getIndicationsColonnes()[i][j].getColor());
         }
@@ -209,6 +211,7 @@ const string& Picross::getDescription() const {return description;}
 const vector< vector<InfoCase> >& Picross::getGrille() const {return grille;}
 const vector< vector<InfoCase> >& Picross::getIndicationsLignes() const {return indicationsLignes;}
 const vector< vector<InfoCase> >& Picross::getIndicationsColonnes() const {return indicationsColonnes;}
+const OperationsQueue& Picross::getQueue() const {return queue;}
 
 //secondary getters
 
@@ -239,6 +242,17 @@ void Picross::addIndicationsColonnes (int num_colonne, int type, int color) {
     indicationsColonnes[num_colonne].push_back(i);
 }
 
+
+void Picross::initiateGrilleIJ(int i, int j) {
+    grille[i][j].setType(-1);
+    grille[i][j].setColor(-1);      //ou default color ?
+}
+
+void Picross::initiateGrilleIJ(int i, int j, int type, int color) {
+    grille[i][j].setType(type);
+    grille[i][j].setColor(color);
+}
+
 void Picross::setGrilleIJ(int i, int j, int type, int color) {
     std::tuple<int,int,InfoCase,InfoCase> t;
     std::get<0> (t) = i;
@@ -255,9 +269,18 @@ void Picross::setGrilleIJ(int i, int j, int type, int color) {
 
 void Picross::setGrilleIJ(int i, int j, char c) {
     
+    std::tuple<int,int,InfoCase,InfoCase> t;
     int color = colors.getColorFromChar(c);
-    grille[i][j].setType(0);
+    
+    std::get<0> (t) = i;
+    std::get<1> (t) = j;
+    std::get<2> (t) = InfoCase(grille[i][j].getType(),grille[i][j].getColor());
+    std::get<3> (t) = InfoCase(0,color);
+
+    grille[i][j].setType(0);         //à modifier je pense
     grille[i][j].setColor(color);
+
+    queue.addOp(t);
 }
 
 
@@ -272,6 +295,35 @@ void Picross::setIndicationsColonnesIJ (int i, int j, int type, int color) {
     indicationsColonnes[i][j].setType(type);
     indicationsColonnes[i][j].setColor(color);
 }
+
+
+
+
+
+//queue
+
+void Picross::previousOp() {
+
+    if (queue.canWePrevious()) {
+        std::tuple<int,int,InfoCase,InfoCase> t = queue.getPrevious();
+        InfoCase inf = std::get<2>(t);
+
+        grille[std::get<0>(t)][std::get<1>(t)].setType(inf.getType());
+        grille[std::get<0>(t)][std::get<1>(t)].setColor(inf.getColor());
+    }
+}
+
+void Picross::forwardOp() {
+    if (queue.canWeForward()) {
+        std::tuple<int,int,InfoCase,InfoCase> t = queue.getForward();
+
+        InfoCase inf = std::get<3>(t);
+        grille[std::get<0>(t)][std::get<1>(t)].setType(inf.getType());
+        grille[std::get<0>(t)][std::get<1>(t)].setColor(inf.getColor());
+    }
+}
+
+
 
 
 //xml
@@ -328,7 +380,6 @@ void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
         //cout << endl<<endl;
     }
 
-
     elmt_line = elmt->NextSiblingElement("clues")->FirstChildElement("line"); // on se place sur les lignes
     elmt_count = elmt_line->FirstChildElement("count");
     while (elmt_line != nullptr) {
@@ -371,8 +422,8 @@ void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
     for (int i=0; i < nbLignes; i++) {
         
         for (int j=0; j < nbColonnes; j++) {
-
-            this->setGrilleIJ(i,j,-1,-1);
+            
+            this->initiateGrilleIJ(i,j);
         }
     }    
 
