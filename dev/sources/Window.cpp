@@ -1,10 +1,6 @@
 #include "Window.hpp"
 
-#define DEBUG
-
-#ifdef DEBUG
-#include <iostream>
-#endif
+#include "Debug.hpp"
 
 #include <sstream>
 #include <algorithm>
@@ -54,7 +50,7 @@ Window::Window()
     ,state_(MENU)
     ,font_(nullptr)
     ,figures_({nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr})
-    ,grid_("ressources/5090.xml")
+    ,grid_("ressources/30511.xml")
     ,ihm_grid_()
 {
     if(uniq_){
@@ -265,9 +261,7 @@ void Window::game_mode(){
 		x = std::min((size_t)19,x);
 		y = std::min((size_t)19,y);
 
-		#ifdef DEBUG
-		std::cout << x << " - " << y << std::endl;
-		#endif
+		LOG_DEBUG(x << " - " << y);
 
 		if(!ihm_grid_[x][y].e[0]){
 		    GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);

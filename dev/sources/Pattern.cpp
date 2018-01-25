@@ -1,5 +1,7 @@
 #include "Pattern.hpp"
 
+#include "Debug.hpp"
+
 // Constructors and Destructor
 Pattern::Pattern(const std::vector<GLfloat>& triangles,const std::vector<std::string>& uniforms, const std::string& texture)
     :program_()

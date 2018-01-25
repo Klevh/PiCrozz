@@ -1,5 +1,7 @@
 #include "Program.hpp"
 
+#include "Debug.hpp"
+
 #include <fstream>
 
 // Constructors and Destructor

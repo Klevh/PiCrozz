@@ -1,5 +1,7 @@
 #include "Picross.hpp"
 
+#include "Debug.hpp"
+
 #include <fstream>
 #include <iostream>
 
@@ -9,23 +11,6 @@ using std::tuple;
 using std::cout;
 using std::endl;
 
-#ifdef XMLCheckResult
-#undef XMLCheckResult
-#endif
-
-//#define DEBUG
-
-#if defined(DEBUG) && !defined(NDEBUG)
-#include <iostream>
-#define XMLCheckResult(a_eResult)					\
-    if ((a_eResult) != tinyxml2::XML_SUCCESS) {				\
-	std::cout << "Error: " << (a_eResult) << std::endl;		\
-    }while(0)
-#define SHOW_LOG(a) std::cout << (a) << std::endl
-#else
-#define XMLCheckResult(a)
-#define SHOW_LOG(a)
-#endif
 
 //xml
 
@@ -130,21 +115,21 @@ Picross::Picross(const string & path) {
 
      
      title = getXMLText (pElement,"title");
-     SHOW_LOG(title);
+     LOG_DEBUG(title);
 
      pElement = pRoot->FirstChildElement("author");
      author = getXMLText (pElement,"author");
-     SHOW_LOG(author);
+     LOG_DEBUG(author);
 
      
      pElement = pRoot->FirstChildElement("copyright");
      copyright = getXMLText (pElement,"copyright");
-     SHOW_LOG(copyright);
+     LOG_DEBUG(copyright);
 
 
      pElement = pRoot->FirstChildElement("description");
      description = getXMLText (pElement,"description");
-     SHOW_LOG(description);
+     LOG_DEBUG(description);
      
      pElement = pRoot->FirstChildElement("color");
      getXMLColors(pElement);
