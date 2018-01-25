@@ -13,6 +13,8 @@ using std::endl;
 #undef XMLCheckResult
 #endif
 
+//#define DEBUG
+
 #if defined(DEBUG) && !defined(NDEBUG)
 #include <iostream>
 #define XMLCheckResult(a_eResult)					\
@@ -252,7 +254,7 @@ void Picross::setGrilleIJ(int i, int j, int type, int color) {
     grille[i][j].setColor(color);
 
 
-    queue.addOp(t);
+    //queue.addOp(t);
 }
 
 void Picross::setGrilleIJ(int i, int j, char c) {
