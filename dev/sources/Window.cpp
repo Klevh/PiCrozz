@@ -45,6 +45,7 @@ bool Window::uniq_init_ = true;
 Window::Window()
     :window_(nullptr)
     ,elements_(COUNT)
+    ,ids_(COUNT, 0)
     ,pattern_no_img_({-1,1,0,0,-1,-1,0,0,1,-1,0,0,1,-1,0,0,1,1,0,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myColor","myRotation"})
     ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation","sampler"})
     ,state_(MENU)
@@ -181,17 +182,19 @@ void Window::run(){
 	glClear(GL_COLOR_BUFFER_BIT); 
 
         // dessin des elements
-	if(elements_[state_].size()){
-	    curr_prog = elements_[state_][0].getId();
+	if(ids_[GAME]){
+	    curr_prog = elements_[state_][0]->getId();
 	    glUseProgram(curr_prog);
 	    Errors::glGetError("Window::run::glUseProgram");
-	    for(const Element& e : elements_[state_]){
-		if(curr_prog != e.getId()){
-		    curr_prog = e.getId();
-		    glUseProgram(curr_prog);
-		    Errors::glGetError("Window::run::glUseProgram");
+	    for(const Element * e : elements_[state_]){
+		if(e){
+		    if(curr_prog != e->getId()){
+			curr_prog = e->getId();
+			glUseProgram(curr_prog);
+			Errors::glGetError("Window::run::glUseProgram");
+		    }
+		    e->draw();
 		}
-		e.draw();
 	    }
 	    glBindVertexArray(0);
 	    Errors::glGetError("Window::run::glBindVertexArray");
@@ -204,14 +207,19 @@ void Window::run(){
 }
 
 void Window::game_mode(){
-    unsigned i = 0;
-
     state_ = GAME;
     // TODO : when fusion with physic part made, transform this to be generic
 
     if(elements_.size() && grid_.getGrille().size()){
 	// emptying the current game placement
 	elements_[GAME].clear();
+	elements_[GAME].resize(grid_.getGrille().size() + 1 // number of horizontal lines
+			       + grid_.getGrille()[0].size() + 1 // number of vertical lines
+			       + 1 // background
+			       + grid_.getGrille().size() * grid_.getGrille()[0].size() * 2); // number of blocks * 2 (for the cross)
+	std::generate(elements_[GAME].begin(),elements_[GAME].end(),
+		      [](){return nullptr;});
+	ids_[GAME] = 0;
 
 	// initializing the ihm_grid_
 	ihm_grid_.clear();
@@ -221,75 +229,87 @@ void Window::game_mode(){
 	}
 	
 	// white background
-	elements_[GAME].push_back(Element(&pattern_no_img_));
-	elements_[GAME][0].setValue(0,0.5); // set plan
-	elements_[GAME][0].setValue(1,0.2,0); // set offset
-	elements_[GAME][0].setValue(2,0.8,0.8); // set size
-	elements_[GAME][0].setValue(3,1,1,1); // set color
-	++i;
+	elements_[GAME][0] = new Element(&pattern_no_img_);
+	elements_[GAME][0]->setValue(0,0.5); // set plan
+	elements_[GAME][0]->setValue(1,0.2,0); // set offset
+	elements_[GAME][0]->setValue(2,0.8,0.8); // set size
+	elements_[GAME][0]->setValue(3,1,1,1); // set color
+	++ids_[GAME];
 
 	for(unsigned j = 0; j < 2 * grid_.getGrille().size() + 2; ++j){
-	    elements_[GAME].push_back(Element(&pattern_no_img_));
+	    elements_[GAME][j + ids_[GAME]] = new Element(&pattern_no_img_);
 	}
 	
 	// vertical lines
-	for(unsigned j = i; j < i + grid_.getGrille().size(); ++j){
-	    //elements_[GAME].push_back(Element(&pattern_no_img_));
-	    elements_[GAME][j].setValue(0,0.5); // set plan
-	    elements_[GAME][j].setValue(1,0.198 + (j - i)*0.08 / (grid_.getGrille().size() / 10.),0); // set offset
-	    elements_[GAME][j].setValue(2,0.002,0.8); // set size
-	    elements_[GAME][j].setValue(3,0,0,0); // set color
+	for(unsigned j = ids_[GAME]; j < ids_[GAME] + grid_.getGrille().size() + 1; ++j){
+	    //elements_[GAME].push_back(new Element(&pattern_no_img_));
+	    elements_[GAME][j]->setValue(0,0.5); // set plan
+	    elements_[GAME][j]->setValue(1,0.198 + (j - ids_[GAME])*0.08 / (grid_.getGrille().size() / 10.),0); // set offset
+	    elements_[GAME][j]->setValue(2,0.002,0.802); // set size
+	    elements_[GAME][j]->setValue(3,0,0,0); // set color
 	}
-	i += 1 + grid_.getGrille().size();
+	ids_[GAME] += 1 + grid_.getGrille().size();
 	
 	// horizontal lines
-	for(unsigned j = i; j < i + grid_.getGrille().size() + 1; ++j){
-	    //elements_[GAME].push_back(Element(&pattern_no_img_));
-	    elements_[GAME][j].setValue(0,0.5); // set plan
-	    elements_[GAME][j].setValue(1,0.198,(j - i)*0.08 / (grid_.getGrille().size() / 10.)); // set offset
-	    elements_[GAME][j].setValue(2,0.8,0.002); // set size
-	    elements_[GAME][j].setValue(3,0,0,0); // set color
+	for(unsigned j = ids_[GAME]; j < ids_[GAME] + grid_.getGrille().size() + 1; ++j){
+	    //elements_[GAME].push_back(new Element(&pattern_no_img_));
+	    elements_[GAME][j]->setValue(0,0.5); // set plan
+	    elements_[GAME][j]->setValue(1,0.198,(j - ids_[GAME])*0.08 / (grid_.getGrille().size() / 10.)); // set offset
+	    elements_[GAME][j]->setValue(2,0.8,0.002); // set size
+	    elements_[GAME][j]->setValue(3,0,0,0); // set color
 	}
-	i += 1 + grid_.getGrille().size();
+	ids_[GAME] += 1 + grid_.getGrille().size();
 
 	// interaction of the white background
-	elements_[GAME][0].setOnClick(
+	elements_[GAME][0]->setOnClick(
 	    [&](Window * w, Element * e, int buttons[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mode, GLfloat x_, GLfloat y_){
 		size_t i = 1;
-		size_t x = x_ * grid_.getGrille().size();
+		size_t x = x_ * grid_.getGrille()[0].size();
 		size_t y = (1 - y_) * grid_.getGrille().size();
-		x = std::min((size_t)19,x);
-		y = std::min((size_t)19,y);
+		x = std::min((size_t)(grid_.getGrille()[0].size()),x);
+		y = std::min((size_t)(grid_.getGrille().size()),y);
 
 		LOG_DEBUG(x << " - " << y);
-
+		LOG_DEBUG(ihm_grid_[x][y].e[0]);
+		
 		if(!ihm_grid_[x][y].e[0]){
 		    GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
 		    GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
 
 		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS){
 			// adding a block
-			elements_[GAME].push_back(Element(&pattern_no_img_));
+			elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+			++ids_[GAME];
 			
-			ihm_grid_[x][y].id[0] = elements_[GAME].size() - 1;
-			ihm_grid_[x][y].e[0] = &(elements_[GAME][ihm_grid_[x][y].id[0]]);
+			ihm_grid_[x][y].id[0] = ids_[GAME] - 1;
+			ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
 			ihm_grid_[x][y].state = 0;
 			
-			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(0, 0.5); // set plan
-			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(1, 0.204 + x * square_size , 0.805 - (y + 1) * square_size); // set offset
-			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(2, block_size, block_size); // set size
-			elements_[GAME][ihm_grid_[x][y].id[0]].setValue(3, 0, 0, 0); // set color
+			LOG_DEBUG(ihm_grid_[x][y].id[0] << " " << ids_[GAME] - 1);
+			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(0, 0.5); // set plan
+			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(1,
+									 0.204 + 0.0003 * (10 - (int)grid_.getGrille()[0].size()) + x * square_size,
+									 0.805 + 0.0001 * (10 - (int)grid_.getGrille().size()) - (y + 1) * square_size); // set offset
+			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
+			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
 		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS){
 			// adding a cross
 		    }
 		}else{
 		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
+			LOG_DEBUG("id in v : " << ihm_grid_[x][y].id[0]);
 			// removing a block
-			for(int i = ihm_grid_[x][y].id[0]; i < elements_[GAME].size() - 1; ++i){
+			for(int i = ihm_grid_[x][y].id[0]; i < ids_[GAME] - 1; ++i){
 			    elements_[GAME][i] = elements_[GAME][i + 1];
 			}
+			LOG_DEBUG("1");
 
-			elements_[GAME].pop_back();
+			delete ihm_grid_[x][y].e[0];
+			elements_[GAME][ids_[GAME] - 1] = nullptr;
+			--ids_[GAME];
+			// setting the removed block
+			ihm_grid_[x][y].e[0] = nullptr;
+			LOG_DEBUG("2");
 
 			// setting new id for other blocks
 			for(int i = 0; i < ihm_grid_.size(); ++i){
@@ -301,49 +321,33 @@ void Window::game_mode(){
 				}
 			    }
 			}
-
-			// setting the removed block
-			ihm_grid_[x][y].e[0] = nullptr;
+			LOG_DEBUG("3");
 		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
 			// removing a cross
 		    }
 		}
 	    });
-
-	// example of blocks
+	
 	/*
-	{
-	    unsigned coords[3][2] = {{0, 3}, {2, 9}, {5,5}};
-	    for (unsigned i = 0; i < 3; ++i)
-		elements_[GAME].push_back(Element(&pattern_no_img_));
-	    for(unsigned j = i; j < i + 3; ++j){
-		elements_[GAME][j].setValue(0,0.5); // set plan
-		elements_[GAME][j].setValue(1,0.204 + coords[j - i][0] * 0.08,0.805 - coords[j - i][1] * 0.08); // set offset
-		elements_[GAME][j].setValue(2,0.07,0.07); // set size
-		elements_[GAME][j].setValue(3,0,0,0); // set color
-	    }
-	    i += 3;
-	}
-
 	// example of crosses
 	{
 	    unsigned coords[3][2] = {{1,2}, {6,5}, {7,2}};
 	    for(unsigned i = 0; i < 6; ++i)
-		elements_[GAME].push_back(Element(&pattern_no_img_));
+		elements_[GAME].push_back(new Element(&pattern_no_img_));
 	    for(unsigned j = i; j < i + 3; ++j){
-		elements_[GAME][j].setValue(0,0.5); // set plan
-		elements_[GAME][j].setValue(1,0.204 + coords[j - i][0] * 0.08,0.83 - coords[j - i][1] * 0.08); // set offset
-		elements_[GAME][j].setValue(2,0.07,0.02); // set size
-		elements_[GAME][j].setValue(3,0,0,0); // set color
-		elements_[GAME][j].setValue(4,45); // set rotation
+		elements_[GAME][j]->setValue(0,0.5); // set plan
+		elements_[GAME][j]->setValue(1,0.204 + coords[j - i][0] * 0.08,0.83 - coords[j - i][1] * 0.08); // set offset
+		elements_[GAME][j]->setValue(2,0.07,0.02); // set size
+		elements_[GAME][j]->setValue(3,0,0,0); // set color
+		elements_[GAME][j]->setValue(4,45); // set rotation
 	    }
 	    i += 3;
 	    for(unsigned j = i; j < i + 3; ++j){
-		elements_[GAME][j].setValue(0,0.5); // set plan
-		elements_[GAME][j].setValue(1,0.204 + coords[j - i][0] * 0.08,0.83 - coords[j - i][1] * 0.08); // set offset
-		elements_[GAME][j].setValue(2,0.07,0.02); // set size
-		elements_[GAME][j].setValue(3,0,0,0); // set color
-		elements_[GAME][j].setValue(4,-45); // set rotation
+		elements_[GAME][j]->setValue(0,0.5); // set plan
+		elements_[GAME][j]->setValue(1,0.204 + coords[j - i][0] * 0.08,0.83 - coords[j - i][1] * 0.08); // set offset
+		elements_[GAME][j]->setValue(2,0.07,0.02); // set size
+		elements_[GAME][j]->setValue(3,0,0,0); // set color
+		elements_[GAME][j]->setValue(4,-45); // set rotation
 	    }
 	    i += 3;
 	}
@@ -354,36 +358,36 @@ void Window::game_mode(){
 void Window::menu_mode(){
     state_ = MENU;
     // buttons
-    for(unsigned i = 0; i < 2; ++i){
+    for(unsigned i = 0; i < 2; ++i, ids_[MENU] += 2){
 	// block
-	elements_[MENU].push_back(Element(&pattern_no_img_));
-	elements_[MENU][i * 2].setValue(0,0.5); // set plan
-	elements_[MENU][i * 2].setValue(1,.3,.2 + .2 * i); // set offset
-	elements_[MENU][i * 2].setValue(2,.4,.1); // set size
-	elements_[MENU][i * 2].setValue(3,.3,.3,.3); // set color
+	elements_[MENU].push_back(new Element(&pattern_no_img_));
+	elements_[MENU][i * 2]->setValue(0,0.5); // set plan
+	elements_[MENU][i * 2]->setValue(1,.3,.2 + .2 * i); // set offset
+	elements_[MENU][i * 2]->setValue(2,.4,.1); // set size
+	elements_[MENU][i * 2]->setValue(3,.3,.3,.3); // set color
 
 	// text
-	elements_[MENU].push_back(Element(&pattern_img_));
-	elements_[MENU][i * 2 + 1].setValue(0,0.5); // set plan
-	elements_[MENU][i * 2 + 1].setValue(1,.3,.2 + .2 * i); // set offset
-	elements_[MENU][i * 2 + 1].setValue(2,.4,.1); // set size
+	elements_[MENU].push_back(new Element(&pattern_img_));
+	elements_[MENU][i * 2 + 1]->setValue(0,0.5); // set plan
+	elements_[MENU][i * 2 + 1]->setValue(1,.3,.2 + .2 * i); // set offset
+	elements_[MENU][i * 2 + 1]->setValue(2,.4,.1); // set size
 	
 	SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[i], {0,0,0,0});
 	if(!s){
 	    throw Errors::FontToSurface();
 	}
 
-	elements_[MENU][i * 2 + 1].setTexture(s);
-	elements_[MENU][i * 2 + 1].setTextureId(4);
+	elements_[MENU][i * 2 + 1]->setTexture(s);
+	elements_[MENU][i * 2 + 1]->setTextureId(4);
     }
 
-    elements_[MENU][0].setOnClick(
+    elements_[MENU][0]->setOnClick(
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = QUIT;
 	});
     
-    elements_[MENU][2].setOnClick(
+    elements_[MENU][2]->setOnClick(
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = GAME;
@@ -419,13 +423,14 @@ void Window::click(GLFWwindow * win, int button, int action, int mods){
 	glfwGetCursorPos(win, &x, &y);
 	glfwGetWindowSize(win, &w, &h);
 	
-	for(unsigned i = 0; i < elements_[state_].size(); ++i){
-	    const Vec3 coords = elements_[state_][i].getValue(1);
-	    const Vec3 dimension = elements_[state_][i].getValue(2);
+	for(unsigned i = 0; i < ids_[state_]; ++i){
+	    const Vec3 coords = elements_[state_][i]->getValue(1);
+	    const Vec3 dimension = elements_[state_][i]->getValue(2);
 	    
-	    if(x >= coords[0] * w && x < (coords[0] + dimension[0]) * w
+	    if(elements_[state_][i]
+	       && x >= coords[0] * w && x < (coords[0] + dimension[0]) * w
 	       && y < (1 - coords[1]) * h && y >= ((1 - coords[1]) - dimension[1]) * h){
-		elements_[state_][i].click(this, states, action, mods, (x * 1. / w - coords[0]) / dimension[0], ((h - y) * 1. / h - coords[1]) / dimension[1]);
+		elements_[state_][i]->click(this, states, action, mods, (x * 1. / w - coords[0]) / dimension[0], ((h - y) * 1. / h - coords[1]) / dimension[1]);
 	    }
 	}
 	last_click = clicked;

@@ -27,7 +27,6 @@ GLuint Element::getId() const{
 
 // setters
 void Element::setValue(unsigned i, GLfloat x, GLfloat y, GLfloat z){
-    LOG_DEBUG(i << " " << uniform_values_.size());
     uniform_values_[i][0] = x;
     uniform_values_[i][1] = y;
     uniform_values_[i][2] = z;

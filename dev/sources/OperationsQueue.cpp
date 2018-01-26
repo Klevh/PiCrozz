@@ -39,7 +39,7 @@ void OperationsQueue::addOp (const std::tuple<int,int,InfoCase,InfoCase> & t) {
 }
 
 void OperationsQueue::display() const {
-    tuple<int,int,InfoCase,InfoCase> t;
+    std::tuple<int,int,InfoCase,InfoCase> t;
     
     LOG_DEBUG("Queue size : " << queue.size() << "     realLast: " << realLast <<"     currentLast: " << currentLast);
     

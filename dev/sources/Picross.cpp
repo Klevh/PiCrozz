@@ -140,7 +140,6 @@ Picross::Picross(const string & path) {
 }
 
 
-<<<<<<< HEAD
 Picross::Picross(const Picross& p)
     :title(p.getTitle())
     ,author(p.getAuthor())
@@ -149,18 +148,6 @@ Picross::Picross(const Picross& p)
     ,nbLignes(p.getNbLignes())
     ,nbColonnes(p.getNbColonnes())
     ,colors(p.getColors())
-{
-    *this = p;
-}
-
-
-Picross& Picross::operator=(const Picross& p)
-=======
-Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor()),
-      copyright(p.getCopyright()), description(p.getDescription()),
-      nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
-      colors(p.getColors())
->>>>>>> Moteur
 {
     *this = p;
 }

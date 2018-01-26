@@ -14,7 +14,7 @@
 #  define LOG_DEBUG(a) std::cout << a << std::endl;
 #  define XMLCheckResult(a_eResult)					\
     if ((a_eResult) != tinyxml2::XML_SUCCESS) {				\
-	std::cout << "Error: " << (a_eResult) << std::endl;		\
+	std::cout << "Error: " << (a_eResult) << std::endl << std::flush; \
     }while(0)
 #else
 #  define LOG_DEBUG(a)

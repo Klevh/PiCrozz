@@ -48,8 +48,10 @@ class Window{
     // non-static attributes
     GLFWwindow * window_;
     ///< glfw window object
-    std::vector< std::vector<Element> > elements_;
+    std::vector< std::vector<Element *> > elements_;
     ///< collections of elements
+    std::vector< unsigned > ids_;
+    ///< current id in the vector (+1)
     Pattern pattern_img_;
     ///< pattern that support image
     Pattern pattern_no_img_;
@@ -63,6 +65,7 @@ class Window{
     Picross grid_;
     ///< picross grid of the game
     std::vector< std::vector< GridCase > > ihm_grid_;
+    ///< graphical representation of the grid
 
 public:
 // public values available for changing "page"
