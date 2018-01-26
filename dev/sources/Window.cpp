@@ -51,7 +51,7 @@ Window::Window()
     ,state_(MENU)
     ,font_(nullptr)
     ,figures_({nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr})
-    ,grid_("ressources/30511.xml")
+    ,grid_("ressources/5090.xml")
     ,ihm_grid_()
 {
     if(uniq_){
@@ -276,7 +276,7 @@ void Window::game_mode(){
 		    GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
 		    GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
 
-		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS){
+		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_RIGHT] != GLFW_PRESS){
 			// adding a block
 			elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 			++ids_[GAME];
@@ -292,8 +292,27 @@ void Window::game_mode(){
 									 0.805 + 0.0001 * (10 - (int)grid_.getGrille().size()) - (y + 1) * square_size); // set offset
 			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
 			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
-		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS){
+		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_LEFT] != GLFW_PRESS){
 			// adding a cross
+			elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+			++ids_[GAME];
+			elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+			++ids_[GAME];
+			
+			ihm_grid_[x][y].id[0] = ids_[GAME] - 2;
+			ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+			ihm_grid_[x][y].id[1] = ids_[GAME] - 1;
+			ihm_grid_[x][y].e[1] = elements_[GAME][ihm_grid_[x][y].id[1]];
+			ihm_grid_[x][y].state = 1;
+
+			for(int i = 0; i < 2; ++i){
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(0,0.5); // set plan
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(1,0.204 + x * square_size,block_size * 2 - y * square_size); // set offset
+			    LOG_DEBUG(block_size * 2 - y * square_size);
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(2,block_size,square_size / 4); // set size
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(3,0,0,0); // set color
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(4,-45 + 90 * i); // set rotation
+			}
 		    }
 		}else{
 		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
@@ -413,8 +432,10 @@ void Window::click(GLFWwindow * win, int button, int action, int mods){
 	
     if(clicked >= last_click + 200){
 	// reading
-	for(unsigned i = 0; i <= GLFW_MOUSE_BUTTON_LAST; ++i)
-	    states[i] = glfwGetMouseButton(win, i);
+	for(unsigned i = 0; i <= GLFW_MOUSE_BUTTON_LAST; ++i){
+	    states[i] = 0;
+	}
+	states[button] = action;
 	
 	// looking for clicked buttons
 	double x, y;
