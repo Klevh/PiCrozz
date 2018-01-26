@@ -1,0 +1,6 @@
+#ifndef DEBUG_PICROZZ_AUBIN_KLEVH_H
+#define DEBUG_PICROZZ_AUBIN_KLEVH_H
+
+#define DEBUG
+
+#endif
