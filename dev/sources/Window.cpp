@@ -71,6 +71,14 @@ Window::~Window(){
     }
     TTF_Quit();
     glfwTerminate();
+
+    for(auto v : elements_){
+	for(Element * e : v){
+	    if(e){
+		delete e;
+	    }
+	}
+    }
 }
 
 // getters
@@ -182,12 +190,12 @@ void Window::run(){
 	glClear(GL_COLOR_BUFFER_BIT); 
 
         // dessin des elements
-	if(ids_[GAME]){
+	if(ids_[GAME] && state_ != QUIT){
 	    curr_prog = elements_[state_][0]->getId();
 	    glUseProgram(curr_prog);
 	    Errors::glGetError("Window::run::glUseProgram");
 	    for(const Element * e : elements_[state_]){
-		if(e){
+		if(e && state_ != QUIT){
 		    if(curr_prog != e->getId()){
 			curr_prog = e->getId();
 			glUseProgram(curr_prog);
@@ -208,7 +216,6 @@ void Window::run(){
 
 void Window::game_mode(){
     state_ = GAME;
-    // TODO : when fusion with physic part made, transform this to be generic
 
     if(elements_.size() && grid_.getGrille().size()){
 	// emptying the current game placement
@@ -263,6 +270,8 @@ void Window::game_mode(){
 	// interaction of the white background
 	elements_[GAME][0]->setOnClick(
 	    [&](Window * w, Element * e, int buttons[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mode, GLfloat x_, GLfloat y_){
+		const int BLACK = grid_.getColors().getColorFromName("black");
+		
 		size_t i = 1;
 		size_t x = x_ * grid_.getGrille()[0].size();
 		size_t y = (1 - y_) * grid_.getGrille().size();
@@ -294,7 +303,7 @@ void Window::game_mode(){
 			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
 
 			// setting the grid_
-			// grid_.setGrilleIJ(x,y,1,color);
+			grid_.setGrilleIJ(x,y,1,BLACK);
 		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_LEFT] != GLFW_PRESS){
 			// adding a cross
 			elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
@@ -318,7 +327,7 @@ void Window::game_mode(){
 		    }
 
 		    // setting the grid_
-		    // grid_.setGrilleIJ(x,y,0,color);
+		    grid_.setGrilleIJ(x,y,0,BLACK);
 		}else{
 		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
 			LOG_DEBUG("id in v : " << ihm_grid_[x][y].id[0]);
@@ -348,7 +357,7 @@ void Window::game_mode(){
 			LOG_DEBUG("3");
 
 			// setting the grid_
-			// grid_.setGrilleIJ(x,y,-1,color);
+			grid_.setGrilleIJ(x,y,-1,BLACK);
 		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
 			// removing a cross
 			for(int j = 1; j >= 0; --j){
@@ -375,7 +384,7 @@ void Window::game_mode(){
 			}
 
 			// setting the grid_
-			// grid_.setGrilleIJ(x,y,-1,color);
+			grid_.setGrilleIJ(x,y,-1,BLACK);
 		    }
 		}
 	    });
