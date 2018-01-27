@@ -51,7 +51,7 @@ Window::Window()
     ,state_(MENU)
     ,font_(nullptr)
     ,figures_({nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr})
-    ,grid_("ressources/5090.xml")
+    ,grid_("ressources/30511.xml")
     ,ihm_grid_()
 {
     if(uniq_){
@@ -292,6 +292,9 @@ void Window::game_mode(){
 									 0.805 + 0.0001 * (10 - (int)grid_.getGrille().size()) - (y + 1) * square_size); // set offset
 			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
 			elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
+
+			// setting the grid_
+			// grid_.setGrilleIJ(x,y,1,color);
 		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_LEFT] != GLFW_PRESS){
 			// adding a cross
 			elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
@@ -307,13 +310,15 @@ void Window::game_mode(){
 
 			for(int i = 0; i < 2; ++i){
 			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(0,0.5); // set plan
-			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(1,0.204 + x * square_size,block_size * 2 - y * square_size); // set offset
-			    LOG_DEBUG(block_size * 2 - y * square_size);
-			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(2,block_size,square_size / 4); // set size
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(1,0.201 + x * square_size,0.678 + grid_.getGrille().size() * 0.005 - y * square_size); // set offset
+			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(2,block_size,square_size / 8); // set size
 			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(3,0,0,0); // set color
 			    elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(4,-45 + 90 * i); // set rotation
 			}
 		    }
+
+		    // setting the grid_
+		    // grid_.setGrilleIJ(x,y,0,color);
 		}else{
 		    if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
 			LOG_DEBUG("id in v : " << ihm_grid_[x][y].id[0]);
@@ -341,8 +346,36 @@ void Window::game_mode(){
 			    }
 			}
 			LOG_DEBUG("3");
+
+			// setting the grid_
+			// grid_.setGrilleIJ(x,y,-1,color);
 		    }else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
 			// removing a cross
+			for(int j = 1; j >= 0; --j){
+			    for(int i = ihm_grid_[x][y].id[j]; i < ids_[GAME] - 1; ++i){
+				elements_[GAME][i] = elements_[GAME][i + 1];
+			    }
+			    
+			    delete ihm_grid_[x][y].e[j];
+			    elements_[GAME][ids_[GAME] - 1] = nullptr;
+			    --ids_[GAME];
+			    // setting the removed block
+			    ihm_grid_[x][y].e[j] = nullptr;
+			    
+			    // setting new id for other blocks
+			    for(int i = 0; i < ihm_grid_.size(); ++i){
+				for(int l = 0; l < ihm_grid_[i].size(); ++l){
+				    for(int k = 0; k < 2; ++k){
+					if(ihm_grid_[i][l].e[k] && ihm_grid_[i][l].id[k] >= ihm_grid_[x][y].id[j]){
+					    --ihm_grid_[i][l].id[k];
+					}
+				    }
+				}
+			    }
+			}
+
+			// setting the grid_
+			// grid_.setGrilleIJ(x,y,-1,color);
 		    }
 		}
 	    });
