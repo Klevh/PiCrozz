@@ -47,7 +47,7 @@ Window::Window()
     ,elements_(COUNT)
     ,ids_(COUNT, 0)
     ,pattern_no_img_({-1,1,0,0,-1,-1,0,0,1,-1,0,0,1,-1,0,0,1,1,0,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myColor","myRotation"})
-    ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation","sampler"})
+    ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation","sampler_img"})
     ,state_(MENU)
     ,font_(nullptr)
     ,figures_(10,nullptr)
@@ -125,6 +125,7 @@ void Window::init(std::string title,int width,int height){
 	}
 	glGetError();
 
+	// enabling blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -144,7 +145,7 @@ void Window::init(std::string title,int width,int height){
 	
 	for(unsigned i = 0; i < 10; ++i){
 	    oss << i;
-	    figures_[i] = TTF_RenderText_Blended(font_, oss.str().c_str(), {0, 0, 0, 0});
+	    figures_[i] = TTF_RenderText_Blended(font_, oss.str().c_str(), {0, 0, 0, 255});
 	    oss.str("");
 	    if(!figures_[i]){
 		throw Errors::FontToSurface();
@@ -411,7 +412,7 @@ void Window::menu_mode(){
 	elements_[MENU][i * 2 + 1]->setValue(1,.3,.2 + .2 * i); // set offset
 	elements_[MENU][i * 2 + 1]->setValue(2,.4,.1); // set size
 	
-	SDL_Surface * s = TTF_RenderUTF8_Blended(font_, MENU_TEXT[i + 1], {255,0,0, 255});
+	SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[i + 1], {255,0,0, 255});
 	if(!s){
 	    throw Errors::FontToSurface();
 	}
@@ -437,7 +438,7 @@ void Window::menu_mode(){
     elements_[MENU][4]->setValue(1,.3,.6); // set offset
     elements_[MENU][4]->setValue(2,.4,.1); // set size
 	
-    SDL_Surface * s = TTF_RenderText_Shaded(font_, MENU_TEXT[0], {255,0,0, 0},{255,255,255, 0});
+    SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[0],{255,0,0, 255});
     if(!s){
 	throw Errors::FontToSurface();
     }

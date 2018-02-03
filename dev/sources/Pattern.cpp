@@ -87,12 +87,12 @@ void Pattern::draw() const{
 void Pattern::setTexture(int width, int height, void * pixels){
     glBindTexture(GL_TEXTURE_2D, texture_);
     Errors::glGetError("Pattern::setTexture::glBindTexture");
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
-    Errors::glGetError("Pattern::setTexture::glTexImage2D");
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     Errors::glGetError("Pattern::setTexture::glTexParameteri (1)");
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     Errors::glGetError("Pattern::setTexture::glTexParameteri (2)");
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+    Errors::glGetError("Pattern::setTexture::glTexImage2D");
 }
 
 void Pattern::updateTexture(int id){
