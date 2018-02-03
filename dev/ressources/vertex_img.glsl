@@ -1,12 +1,12 @@
 #version 330 core
 
 layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 img;
 
 uniform vec3 myPlan;
 uniform vec3 myOffset;
 uniform vec3 myRatio;
 uniform vec3 myRotation;
-uniform vec3 myImageCoord;
 
 out vec2 p_image;
 
@@ -14,7 +14,7 @@ vec2 pos;
 vec2 angle;
 
 void main(){
-     p_image = myImageCoord.xy;
+     p_image = img;
      
      pos = position * myRatio.xy;
 

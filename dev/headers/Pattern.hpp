@@ -77,6 +77,8 @@ public:
      * @param width : width of the texture
      * @param height : height of the texture
      * @param pixels : RGBA structure of the texture
+     * @param colors : internal format
+     * @param format : format of pixels (RGBA, BGRA, ...)
      */
     void setTexture(int width, int height, void * pixels);
     /**

@@ -8,6 +8,7 @@ Element::Element(Pattern * pattern, OnClick onclick)
     ,pattern_(pattern)
     ,uniform_values_(pattern->getSize(),{0,0,0})
     ,surface_(nullptr)
+    ,surface_changed(false)
 {
     for(unsigned i = 0; i < uniform_values_.size(); ++i){
 	uniform_values_[i][0] = 0;
@@ -45,10 +46,11 @@ void Element::setTexture(SDL_Surface * texture){
 	SDL_FreeSurface(surface_);
     }
     surface_ = texture;
+    surface_changed = true;
 }
 
 // other methods
-void Element::draw() const{
+void Element::draw(){
     if(pattern_){
 	pattern_->bindVAO();
 	for(unsigned i = 0; i < uniform_values_.size(); ++i){
@@ -56,8 +58,13 @@ void Element::draw() const{
 		pattern_->setUniform(i,uniform_values_[i][0],uniform_values_[i][1],uniform_values_[i][2]);
 	    }
 	}
+	if(surface_changed){
+	    if(surface_){
+		pattern_->setTexture(surface_->w, surface_->h, surface_->pixels);
+	    }
+	    surface_changed = false;
+	}
 	if(surface_){
-	    pattern_->setTexture(surface_->w, surface_->h, surface_->pixels);
 	    pattern_->updateTexture(surface_id_);
 	}
 	pattern_->draw();

@@ -51,7 +51,7 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
 			  GL_FLOAT,
 			  GL_FALSE,
 			  4*sizeof(GLfloat),
-			  (GLvoid*)2);
+			  (GLvoid*) (2 * sizeof(GLfloat)));
     Errors::glGetError("Pattern::init::glVertexAtrribArray(1)");
   
     glBindVertexArray(0);
@@ -63,6 +63,8 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
     }
 
     glGenTextures(1,&texture_);
+    LOG_DEBUG("texture : " << texture_);
+    
     Errors::glGetError("Pattern::init::glGenTextures");
 }
 
@@ -78,19 +80,26 @@ void Pattern::setUniform(unsigned i, GLfloat x, GLfloat y, GLfloat z) const{
 }
 
 void Pattern::draw() const{
-    glDrawArrays(GL_TRIANGLES,0,triangles_.size());
+    glDrawArrays(GL_TRIANGLES, 0, triangles_.size() / 4);
     Errors::glGetError("Pattern::draw::glDrawArrays");
 }
 
 void Pattern::setTexture(int width, int height, void * pixels){
     glBindTexture(GL_TEXTURE_2D, texture_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    Errors::glGetError("Pattern::setTexture::glBindTexture");
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, pixels);
+    Errors::glGetError("Pattern::setTexture::glTexImage2D");
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    Errors::glGetError("Pattern::setTexture::glTexParameteri (1)");
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    Errors::glGetError("Pattern::setTexture::glTexParameteri (2)");
 }
 
 void Pattern::updateTexture(int id){
     glBindTexture(GL_TEXTURE_2D, texture_);
+    Errors::glGetError("Pattern::updateTexture::glBindTexture");
     glActiveTexture(GL_TEXTURE0);
+    Errors::glGetError("Pattern::updateTexture::glActiveTexture");
     glUniform1i(uniform_id_[id], 0);
+    Errors::glGetError("Pattern::updateTexture::glUniform1i");
 }
