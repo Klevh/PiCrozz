@@ -409,10 +409,10 @@ void Window::menu_mode(){
 	// text
 	elements_[MENU].push_back(new Element(&pattern_img_));
 	elements_[MENU][i * 2 + 1]->setValue(0,0.5); // set plan
-	elements_[MENU][i * 2 + 1]->setValue(1,.3,.2 + .2 * i); // set offset
-	elements_[MENU][i * 2 + 1]->setValue(2,.4,.1); // set size
+	elements_[MENU][i * 2 + 1]->setValue(1,.3 + .05,.2 + .2 * i); // set offset
+	elements_[MENU][i * 2 + 1]->setValue(2,.3,.1); // set size
 	
-	SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[i + 1], {255,0,0, 255});
+	SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[i + 1], {0,0,0, 255});
 	if(!s){
 	    throw Errors::FontToSurface();
 	}
@@ -438,7 +438,7 @@ void Window::menu_mode(){
     elements_[MENU][4]->setValue(1,.3,.6); // set offset
     elements_[MENU][4]->setValue(2,.4,.1); // set size
 	
-    SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[0],{255,0,0, 255});
+    SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[0],{0,0,0, 255});
     if(!s){
 	throw Errors::FontToSurface();
     }

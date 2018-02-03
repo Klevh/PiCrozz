@@ -58,13 +58,8 @@ void Element::draw(){
 		pattern_->setUniform(i,uniform_values_[i][0],uniform_values_[i][1],uniform_values_[i][2]);
 	    }
 	}
-	if(surface_changed){
-	    if(surface_){
-		pattern_->setTexture(surface_->w, surface_->h, surface_->pixels);
-	    }
-	    surface_changed = false;
-	}
 	if(surface_){
+	    pattern_->setTexture(surface_->w, surface_->h, surface_->pixels);
 	    pattern_->updateTexture(surface_id_);
 	}
 	pattern_->draw();
