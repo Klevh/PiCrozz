@@ -70,6 +70,27 @@ ELSE()
   MESSAGE(ERROR " SDL2_ttf not found")
 ENDIF()
 
+find_package(Boost REQUIRED)
+IF(Boost_FOUND)
+  MESSAGE(INFO " Boost lib found at ${Boost_LIBRARIES}")
+ELSE()
+  MESSAGE(ERROR " Boost not found")
+ENDIF()
+
+find_package(Boost COMPONENTS filesystem REQUIRED)
+IF(Boost_FILESYSTEM_FOUND)
+  MESSAGE(INFO " Boost filesystem lib found at ${Boost_FILESYSTEM_LIBRARIES}")
+ELSE()
+  MESSAGE(ERROR " Boost filesystem not found")
+ENDIF()
+
+find_package(Boost COMPONENTS system REQUIRED)
+IF(Boost_SYSTEM_FOUND)
+  MESSAGE(INFO " Boost system lib found at ${Boost_FILESYSTEM_LIBRARIES}")
+ELSE()
+  MESSAGE(ERROR " Boost system not found")
+ENDIF()
+
 # enlever la compilation des tests GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -83,6 +104,8 @@ target_link_libraries(
   # chercher find package cmake
   ${GLEW_LIBRARIES}
   ${OPENGL_LIBRARIES}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   glfw
   -lSDL2
   -lSDL2_ttf
@@ -92,7 +115,8 @@ target_link_libraries(
 
 target_include_directories(
   PiCrozz
-  PUBLIC headers/)
+  PUBLIC headers/
+  ${Boost_INCLUDE_DIRS})
 
 # options de compilations
 

@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <boost/filesystem.hpp>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -29,6 +30,22 @@ static void key_callback(GLFWwindow* win, int key, int scancode, int action, int
 	if(window)
 	    window->keyEvent(win,key,action);
     }
+}
+static std::vector<std::string> all_file_in_dir(const std::string& path){
+    std::vector<std::string> res;
+    boost::filesystem::path p(path);
+    boost::filesystem::directory_iterator end;
+    
+    for(boost::filesystem::directory_iterator start(p); start != end; ++start){
+	std::string s = start->path().leaf().string();
+	size_t id = s.find(".xml");
+	
+	if(id != std::string::npos && id == s.size() - 4){
+	    res.push_back(s);
+	}
+    }
+
+    return res;
 }
 
 // static attributes
