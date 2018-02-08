@@ -31,8 +31,8 @@ class Element{
     ///< texture of the element, if any
     int surface_id_;
     ///< id of the texture in uniform_values_
-    bool surface_changed;
-    ///< tells when we have to send back the surface to the GPU
+    GLuint texture_;
+    ///< texture
     
 public:
     typedef OnClick_window OnClick;

@@ -8,13 +8,14 @@ Element::Element(Pattern * pattern, OnClick onclick)
     ,pattern_(pattern)
     ,uniform_values_(pattern->getSize(),{0,0,0})
     ,surface_(nullptr)
-    ,surface_changed(false)
 {
     for(unsigned i = 0; i < uniform_values_.size(); ++i){
 	uniform_values_[i][0] = 0;
 	uniform_values_[i][1] = 0;
 	uniform_values_[i][2] = 0;
     }
+    glGenTextures(1,&texture_);
+    Errors::glGetError("Pattern::Constructor::glGenTextures");
 }
 
 // getters
@@ -46,7 +47,15 @@ void Element::setTexture(SDL_Surface * texture){
 	SDL_FreeSurface(surface_);
     }
     surface_ = texture;
-    surface_changed = true;
+
+    glBindTexture(GL_TEXTURE_2D, texture_);
+    Errors::glGetError("Pattern::setTexture::glBindTexture");
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    Errors::glGetError("Pattern::setTexture::glTexParameteri (1)");
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    Errors::glGetError("Pattern::setTexture::glTexParameteri (2)");
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface_->w, surface_->h, 0,GL_BGRA, GL_UNSIGNED_BYTE, surface_->pixels);
+    Errors::glGetError("Pattern::setTexture::glTexImage2D");
 }
 
 // other methods
@@ -59,8 +68,7 @@ void Element::draw(){
 	    }
 	}
 	if(surface_){
-	    pattern_->setTexture(surface_->w, surface_->h, surface_->pixels);
-	    pattern_->updateTexture(surface_id_);
+	    pattern_->updateTexture(surface_id_, texture_);
 	}
 	pattern_->draw();
     }

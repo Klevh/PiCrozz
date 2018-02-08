@@ -61,9 +61,6 @@ void Pattern::init(const char * vertex_path,const char * fragment_path, const ch
 	uniform_id_[i] = glGetUniformLocation(program_.getId(), uniform_names_[i].c_str());
 	Errors::glGetError((std::string("Pattern::init::glGetUniformLocation  -  ") + uniform_names_[i]).c_str());
     }
-
-    glGenTextures(1,&texture_);
-    LOG_DEBUG("texture : " << texture_);
     
     Errors::glGetError("Pattern::init::glGenTextures");
 }
@@ -84,19 +81,8 @@ void Pattern::draw() const{
     Errors::glGetError("Pattern::draw::glDrawArrays");
 }
 
-void Pattern::setTexture(int width, int height, void * pixels){
-    glBindTexture(GL_TEXTURE_2D, texture_);
-    Errors::glGetError("Pattern::setTexture::glBindTexture");
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    Errors::glGetError("Pattern::setTexture::glTexParameteri (1)");
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    Errors::glGetError("Pattern::setTexture::glTexParameteri (2)");
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, pixels);
-    Errors::glGetError("Pattern::setTexture::glTexImage2D");
-}
-
-void Pattern::updateTexture(int id){
-    glBindTexture(GL_TEXTURE_2D, texture_);
+void Pattern::updateTexture(int id, GLuint texture){
+    glBindTexture(GL_TEXTURE_2D, texture);
     Errors::glGetError("Pattern::updateTexture::glBindTexture");
     glActiveTexture(GL_TEXTURE0);
     Errors::glGetError("Pattern::updateTexture::glActiveTexture");

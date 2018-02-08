@@ -36,7 +36,7 @@ const Window::STATE_VALUE Window::P_MENU = MENU;
 const Window::STATE_VALUE Window::P_GAME = GAME;
 const Window::STATE_VALUE Window::P_QUIT = QUIT;
 const Window::STATE_VALUE Window::P_CHOICE = CHOICE;
-static const char * MENU_TEXT[] = {"PICROZZ", "START", "QUIT"};
+static const char * MENU_TEXT[] = {"PICROZZ", "QUIT", "START"};
 
 bool Window::uniq_ = true;
 bool Window::uniq_init_ = true;
@@ -51,7 +51,7 @@ Window::Window()
     ,state_(MENU)
     ,font_(nullptr)
     ,figures_(10,nullptr)
-    ,grid_("ressources/30511.xml")
+    ,grid_("ressources/5435.xml")
     ,ihm_grid_()
 {
     if(uniq_){
@@ -135,7 +135,7 @@ void Window::init(std::string title,int width,int height){
 	}
 
 	// Font creation
-	font_ = TTF_OpenFont("ressources/arial.ttf",30);
+	font_ = TTF_OpenFont("ressources/arial.ttf",100);
 	if(!font_){
 	    throw Errors::FontNotOpened("ressources/arial.ttf");
 	}
@@ -219,18 +219,44 @@ void Window::run(){
 }
 
 void Window::game_mode(){
+    SDL_Surface * surface;
     state_ = GAME;
 
     if(elements_.size() && grid_.getGrille().size()){
+	// calculating number of elements for indications
+	int max_row = (*std::max_element(
+	    grid_.getIndicationsLignes().begin(),
+	    grid_.getIndicationsLignes().end(),
+	    [](const std::vector<InfoCase>& v1, const std::vector<InfoCase>& v2){
+		return v1.size() < v2.size();
+	    })).size();
+	int max_column = (*std::max_element(
+	    grid_.getIndicationsColonnes().begin(),
+	    grid_.getIndicationsColonnes().end(),
+	    [](const std::vector<InfoCase>& v1, const std::vector<InfoCase>& v2){
+		return v1.size() < v2.size();
+	    })).size();
+	
 	// emptying the current game placement
 	elements_[GAME].clear();
 	elements_[GAME].resize(grid_.getGrille().size() + 1 // number of horizontal lines
 			       + grid_.getGrille()[0].size() + 1 // number of vertical lines
 			       + 1 // background
-			       + grid_.getGrille().size() * grid_.getGrille()[0].size() * 2); // number of blocks * 2 (for the cross)
+			       + grid_.getGrille().size() * grid_.getGrille()[0].size() * 2
+			       + max_column * grid_.getGrille().size()
+			       + max_row * grid_.getGrille()[0].size()
+	    ); // number of blocks * 2 (for the cross)
 	std::generate(elements_[GAME].begin(),elements_[GAME].end(),
 		      [](){return nullptr;});
 	ids_[GAME] = 0;
+	
+	// white background
+	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	elements_[GAME][ids_[GAME]]->setValue(0,0.5); // set plan
+	elements_[GAME][ids_[GAME]]->setValue(1,0.2,0); // set offset
+	elements_[GAME][ids_[GAME]]->setValue(2,0.8,0.8); // set size
+	elements_[GAME][ids_[GAME]]->setValue(3,1,1,1); // set color
+	++ids_[GAME];
 
 	// initializing the ihm_grid_
 	ihm_grid_.clear();
@@ -238,22 +264,72 @@ void Window::game_mode(){
 	for(std::vector<GridCase>& v : ihm_grid_){
 	    v.resize(grid_.getGrille()[0].size());
 	}
-	
-	// white background
-	elements_[GAME][0] = new Element(&pattern_no_img_);
-	elements_[GAME][0]->setValue(0,0.5); // set plan
-	elements_[GAME][0]->setValue(1,0.2,0); // set offset
-	elements_[GAME][0]->setValue(2,0.8,0.8); // set size
-	elements_[GAME][0]->setValue(3,1,1,1); // set color
-	++ids_[GAME];
 
+	// rows indications
+	double size_row = 0.2 / max_row;
+	double size_col = 0.8 / grid_.getGrille().size();
+	for(int i = 0; i < grid_.getIndicationsLignes().size(); ++i){
+	    double offset = max_row - grid_.getIndicationsLignes()[i].size();
+	    for(int j = 0; j < grid_.getIndicationsLignes()[i].size(); j++){
+		elements_[GAME][ids_[GAME]] = new Element(&pattern_img_);
+		elements_[GAME][ids_[GAME]]->setValue(0,0.5); // set plan
+		elements_[GAME][ids_[GAME]]->setValue(
+		    1,
+		    size_row * (j + offset),
+		    0.8 - size_col * (i + 1)); // set offset
+		elements_[GAME][ids_[GAME]]->setValue(2,size_row,size_col); // set size
+
+		// ajout du text
+		std::ostringstream oss;
+		oss << grid_.getIndicationsLignes()[i][j].getType();
+		SDL_Surface * s = TTF_RenderText_Blended(font_, oss.str().c_str(), {0,0,0,255});
+		if(!s){
+		    throw Errors::FontToSurface();
+		}
+
+		elements_[GAME][ids_[GAME]]->setTexture(s);
+		elements_[GAME][ids_[GAME]]->setTextureId(4);
+
+		++ids_[GAME];
+	    }
+	}
+
+	// column indications
+	size_row = 0.8 / grid_.getGrille()[0].size();
+	size_col = 0.2 / max_column;
+	for(int i = 0; i < grid_.getIndicationsColonnes().size(); ++i){
+	    double offset = max_column - grid_.getIndicationsColonnes()[i].size();
+	    for(int j = 0; j < grid_.getIndicationsColonnes()[i].size(); j++){
+		elements_[GAME][ids_[GAME]] = new Element(&pattern_img_);
+		elements_[GAME][ids_[GAME]]->setValue(0,0.5); // set plan
+		elements_[GAME][ids_[GAME]]->setValue(
+		    1,
+		    0.2 + size_row * i,
+		    1 - size_col * (j + offset + 1)); // set offset
+		elements_[GAME][ids_[GAME]]->setValue(2,size_row,size_col); // set size
+
+		// ajout du text
+		std::ostringstream oss;
+		oss << grid_.getIndicationsColonnes()[i][j].getType();
+		SDL_Surface * s = TTF_RenderText_Blended(font_, oss.str().c_str(), {0,0,0,255});
+		if(!s){
+		    throw Errors::FontToSurface();
+		}
+
+		elements_[GAME][ids_[GAME]]->setTexture(s);
+		elements_[GAME][ids_[GAME]]->setTextureId(4);
+
+		++ids_[GAME];
+	    }
+	}
+
+	// creating vertical and horizontal lines
 	for(unsigned j = 0; j < 2 * grid_.getGrille().size() + 2; ++j){
 	    elements_[GAME][j + ids_[GAME]] = new Element(&pattern_no_img_);
 	}
 	
 	// vertical lines
 	for(unsigned j = ids_[GAME]; j < ids_[GAME] + grid_.getGrille().size() + 1; ++j){
-	    //elements_[GAME].push_back(new Element(&pattern_no_img_));
 	    elements_[GAME][j]->setValue(0,0.5); // set plan
 	    elements_[GAME][j]->setValue(1,0.198 + (j - ids_[GAME])*0.08 / (grid_.getGrille().size() / 10.),0); // set offset
 	    elements_[GAME][j]->setValue(2,0.002,0.802); // set size
@@ -263,7 +339,6 @@ void Window::game_mode(){
 	
 	// horizontal lines
 	for(unsigned j = ids_[GAME]; j < ids_[GAME] + grid_.getGrille().size() + 1; ++j){
-	    //elements_[GAME].push_back(new Element(&pattern_no_img_));
 	    elements_[GAME][j]->setValue(0,0.5); // set plan
 	    elements_[GAME][j]->setValue(1,0.198,(j - ids_[GAME])*0.08 / (grid_.getGrille().size() / 10.)); // set offset
 	    elements_[GAME][j]->setValue(2,0.8,0.002); // set size
@@ -430,13 +505,13 @@ void Window::menu_mode(){
     elements_[MENU][2]->setOnClick(
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
-		state_ = GAME;
+		state_ = CHOICE;
 	});
 
     elements_[MENU].push_back(new Element(&pattern_img_));
-    elements_[MENU][4]->setValue(0,0.5); // set plan
-    elements_[MENU][4]->setValue(1,.3,.6); // set offset
-    elements_[MENU][4]->setValue(2,.4,.1); // set size
+    elements_[MENU][4]->setValue(0, 0.5); // set plan
+    elements_[MENU][4]->setValue(1, .2, .6); // set offset
+    elements_[MENU][4]->setValue(2, .6, .15); // set size
 	
     SDL_Surface * s = TTF_RenderText_Blended(font_, MENU_TEXT[0],{0,0,0, 255});
     if(!s){
