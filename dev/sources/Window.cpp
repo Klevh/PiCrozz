@@ -594,13 +594,19 @@ void Window::choice_mode(){
 	const Vec3& offset = e->getValue(1);
 	
 	// open the good file
-	double off_col = (0.8 - offset[1]) / (0.7 / ROW_CHOICE) - 0.1;
-	double off_row = offset[0] / (1.0 / COL_CHOICE) - 0.1;
-	LOG_DEBUG(files[cursor * ROW_CHOICE * COL_CHOICE
+	int off_col = (0.8 - offset[1]) / (0.7 / ROW_CHOICE) - 1.1;
+	int off_row = offset[0] / (1.0 / COL_CHOICE) - 0.1;
+	
+	LOG_DEBUG(off_col << " - " << off_row);
+	LOG_DEBUG("file : " <<
+		  files[cursor * ROW_CHOICE * COL_CHOICE
 			+ ROW_CHOICE * off_col + off_row]);
-        grid_ = Picross(files[cursor * ROW_CHOICE * COL_CHOICE
-			      + ROW_CHOICE * off_col + off_row]);
-	    
+	
+        grid_ = Picross("ressources/"
+			+ files[cursor * ROW_CHOICE * COL_CHOICE
+			      + ROW_CHOICE * off_col + off_row]
+			+ ".xml");
+	
 	game_mode();
     };
     
