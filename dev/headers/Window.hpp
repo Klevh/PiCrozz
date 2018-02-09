@@ -60,12 +60,12 @@ class Window{
     ///< 'page' to be displayed
     TTF_Font * font_;
     ///< font of the text
-    std::vector<SDL_Surface *> figures_;
-    ///< all figures (from 0 to 9)
     Picross grid_;
     ///< picross grid of the game
     std::vector< std::vector< GridCase > > ihm_grid_;
     ///< graphical representation of the grid
+    size_t cursor;
+    ///< cursor in choice mode
 
 public:
 // public values available for changing "page"

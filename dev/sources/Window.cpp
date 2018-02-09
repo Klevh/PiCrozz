@@ -10,6 +10,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define ROW_CHOICE 4
+#define COL_CHOICE 4
+
 // static none-class functions
 static void resize_framebuffer(GLFWwindow * win, int width, int height){
     glViewport(0,0,width,height);
@@ -41,7 +44,7 @@ static std::vector<std::string> all_file_in_dir(const std::string& path){
 	size_t id = s.find(".xml");
 	
 	if(id != std::string::npos && id == s.size() - 4){
-	    res.push_back(s);
+	    res.push_back(s.substr(0, s.size() - 4));
 	}
     }
 
@@ -67,7 +70,6 @@ Window::Window()
     ,pattern_img_({-1,1,0,0,-1,-1,0,1,1,-1,1,1,1,-1,1,1,1,1,1,0,-1,1,0,0},{"myPlan","myOffset","myRatio","myRotation","sampler_img"})
     ,state_(MENU)
     ,font_(nullptr)
-    ,figures_(10,nullptr)
     ,grid_("ressources/5435.xml")
     ,ihm_grid_()
 {
@@ -78,24 +80,17 @@ Window::Window()
 }
 
 Window::~Window(){
+    for(int i = 0; i < COUNT; ++i){
+	for(int j = 0; j < elements_[i].size(); ++j){
+	    delete elements_[i][j];
+	}
+    }
+    
     if(font_){
 	TTF_CloseFont(font_);
     }
-    for(SDL_Surface * s : figures_){
-	if(s){
-	    SDL_FreeSurface(s);
-	}
-    }
     TTF_Quit();
     glfwTerminate();
-
-    for(auto v : elements_){
-	for(Element * e : v){
-	    if(e){
-		delete e;
-	    }
-	}
-    }
 }
 
 // getters
@@ -157,18 +152,6 @@ void Window::init(std::string title,int width,int height){
 	    throw Errors::FontNotOpened("ressources/arial.ttf");
 	}
 
-	// Instanciating figures
-	std::ostringstream oss;
-	
-	for(unsigned i = 0; i < 10; ++i){
-	    oss << i;
-	    figures_[i] = TTF_RenderText_Blended(font_, oss.str().c_str(), {0, 0, 0, 255});
-	    oss.str("");
-	    if(!figures_[i]){
-		throw Errors::FontToSurface();
-	    }
-	}
-
 	// compiling programs
 	pattern_no_img_.init("ressources/vertex_no_img.glsl","ressources/fragment_no_img.glsl");
 	pattern_img_.init("ressources/vertex_img.glsl","ressources/fragment_img.glsl");
@@ -177,9 +160,7 @@ void Window::init(std::string title,int width,int height){
 	glClearColor(1,1,.5,1);
 
 	// generating all pages
-	game_mode();
 	menu_mode();
-	//choice_mode();
 
 	// set user pointer of window_ with this
 	glfwSetWindowUserPointer(window_,this);
@@ -195,7 +176,7 @@ void Window::init(std::string title,int width,int height){
 	// --- key event
 	glfwSetKeyCallback(window_,key_callback);
 
-	Errors::glGetError("Window::Window",glfwTerminate);
+	Errors::glGetError("Window::Window");
     }else
 	throw WindowInitTwice();
 }
@@ -211,7 +192,7 @@ void Window::run(){
 	glClear(GL_COLOR_BUFFER_BIT); 
 
         // dessin des elements
-	if(ids_[GAME] && state_ != QUIT){
+	if(ids_[state_] && state_ != QUIT){
 	    curr_prog = elements_[state_][0]->getId();
 	    glUseProgram(curr_prog);
 	    Errors::glGetError("Window::run::glUseProgram");
@@ -237,9 +218,12 @@ void Window::run(){
 
 void Window::game_mode(){
     SDL_Surface * surface;
-    state_ = GAME;
 
     if(elements_.size() && grid_.getGrille().size()){
+	for(int i = 0; i < ids_[GAME]; ++i){
+	    delete elements_[GAME][i];
+	}
+	
 	// calculating number of elements for indications
 	int max_row = (*std::max_element(
 	    grid_.getIndicationsLignes().begin(),
@@ -496,7 +480,7 @@ void Window::menu_mode(){
 	elements_[MENU][i * 2]->setValue(0,0.5); // set plan
 	elements_[MENU][i * 2]->setValue(1,.3,.2 + .2 * i); // set offset
 	elements_[MENU][i * 2]->setValue(2,.4,.1); // set size
-	elements_[MENU][i * 2]->setValue(3,.3,.3,.3); // set color
+	elements_[MENU][i * 2]->setValue(3,.8,.8,.8); // set color
 
 	// text
 	elements_[MENU].push_back(new Element(&pattern_img_));
@@ -521,8 +505,10 @@ void Window::menu_mode(){
     
     elements_[MENU][2]->setOnClick(
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
-	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
+	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS){
+		choice_mode();
 		state_ = CHOICE;
+	    }
 	});
 
     elements_[MENU].push_back(new Element(&pattern_img_));
@@ -540,8 +526,174 @@ void Window::menu_mode(){
 }
 
 void Window::choice_mode(){
-    grid_ = Picross("ressources/5090.xml");
-    game_mode();
+    SDL_Surface * surface;
+    std::vector<std::string> files = all_file_in_dir("ressources/");
+
+    for(int i = 0; i < ids_[CHOICE]; ++i){
+	delete elements_[CHOICE][i];
+	elements_[CHOICE][i] = nullptr;
+    }
+    
+    // initializing attributes
+    cursor = 0;
+    ids_[CHOICE] = 5;
+    elements_[CHOICE].resize(files.size() * 2 + 5);
+    std::generate(elements_[CHOICE].begin(), elements_[CHOICE].end(),
+		  [](){return nullptr;});
+
+    // creating next and back behavior
+    auto next = [&](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){
+	if((cursor + 1) * ROW_CHOICE * COL_CHOICE * 2 < ids_[CHOICE]){
+	    // changing back button color
+	    if(!cursor){ 
+		elements_[CHOICE][1]->setValue(3, 0.8, 0.8, 0.8);
+	    }
+
+	    // shifting all choice buttons to the left
+	    for(int i = 5; i < ids_[CHOICE]; ++i){
+		const Vec3& offset = elements_[CHOICE][i]->getValue(1);
+
+		elements_[CHOICE][i]->setValue(1, offset[0] - 1, offset[1]);
+	    }
+
+	    ++cursor;
+	    
+	    // changing next button color
+	    if((cursor + 1) * ROW_CHOICE * COL_CHOICE * 2 >= ids_[CHOICE]){ 
+		elements_[CHOICE][3]->setValue(3, 0.4, 0.4, 0.4);
+	    }
+	}
+    };
+    auto back = [&](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){
+	if(cursor){
+	    // changing next button color
+	    if((cursor + 1) * ROW_CHOICE * COL_CHOICE * 2 >= ids_[CHOICE]){ 
+		elements_[CHOICE][3]->setValue(3, 0.8, 0.8, 0.8);
+	    }
+
+	    // shifting all choice buttons to the right
+	    for(int i = 5; i < ids_[CHOICE]; ++i){
+		const Vec3& offset = elements_[CHOICE][i]->getValue(1);
+
+		elements_[CHOICE][i]->setValue(1, offset[0] + 1, offset[1]);
+	    }
+
+	    --cursor;
+	    
+	    // changing next button color
+	    if(!cursor){ 
+		elements_[CHOICE][1]->setValue(3, 0.4, 0.4, 0.4);
+	    }
+	}
+    };
+
+    // creating choice button behavior
+    auto button = [&, files](Window*,Element * e,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){
+	state_ = GAME;
+
+	const Vec3& offset = e->getValue(1);
+	
+	// open the good file
+	double off_col = (0.8 - offset[1]) / (0.7 / ROW_CHOICE) - 0.1;
+	double off_row = offset[0] / (1.0 / COL_CHOICE) - 0.1;
+	LOG_DEBUG(files[cursor * ROW_CHOICE * COL_CHOICE
+			+ ROW_CHOICE * off_col + off_row]);
+        grid_ = Picross(files[cursor * ROW_CHOICE * COL_CHOICE
+			      + ROW_CHOICE * off_col + off_row]);
+	    
+	game_mode();
+    };
+    
+    // creating next/back button
+    char btn_txt[][5] = {"BACK","NEXT"};
+    for(int i = 0; i < 2; ++i){
+	// the block of the button
+	elements_[CHOICE][i*2 + 1] = new Element(&pattern_no_img_);
+	elements_[CHOICE][i*2 + 1]->setValue(0, 0.5); // set plan
+	elements_[CHOICE][i*2 + 1]->setValue(1,
+					     0.01 + 0.68 * i,
+					     0.01); // set offset
+	elements_[CHOICE][i*2 + 1]->setValue(2, 0.3, 0.08); // set size
+	elements_[CHOICE][i*2 + 1]->setValue(3, 0.4 * (i + 1), 0.4 * (i + 1), 0.4 * (i + 1)); // set color
+	
+	// the text of the button
+	elements_[CHOICE][i*2 + 2] = new Element(&pattern_img_);
+	elements_[CHOICE][i*2 + 2]->setValue(0, 0.5); // set plan
+	elements_[CHOICE][i*2 + 2]->setValue(1,
+					     0.015 + 0.68 * i,
+					     0.015); // set offset
+	elements_[CHOICE][i*2 + 2]->setValue(2, 0.29, 0.07); // set size
+
+	surface = TTF_RenderText_Blended(font_, btn_txt[i], {0,0,0,255});
+	if(!surface){
+	    throw Errors::FontToSurface();
+	}
+	elements_[CHOICE][i*2 + 2]->setTexture(surface);
+	elements_[CHOICE][i*2 + 2]->setTextureId(4);
+    }
+    if(files.size() <= ROW_CHOICE * COL_CHOICE){
+	elements_[CHOICE][3]->setValue(3, 0.4, 0.4, 0.4);
+    }
+    elements_[CHOICE][1]->setOnClick(back);
+    elements_[CHOICE][1]->setOnClick(next);
+
+    // adding title
+    elements_[CHOICE][0] = new Element(&pattern_img_);
+    elements_[CHOICE][0]->setValue(0, 0.5); // set plan
+    elements_[CHOICE][0]->setValue(1, 0.2, 0.805); // set offset
+    elements_[CHOICE][0]->setValue(2, 0.6, 0.19); // set size
+    surface = TTF_RenderText_Blended(font_, "Choose your grid", {0,0,0,255});
+    if(!surface){
+	throw Errors::FontToSurface();
+    }
+    elements_[CHOICE][0]->setTexture(surface);
+    elements_[CHOICE][0]->setTextureId(4);
+
+    // creating each "pages"
+    double size_col = 1.0 / COL_CHOICE;
+    double size_row = 0.7 / ROW_CHOICE;
+    while((ids_[CHOICE] - 5) / 2 < files.size()){
+	for(int i = 0; i < ROW_CHOICE && (ids_[CHOICE] - 5) / 2 < files.size(); ++i){
+	    for(int j = 0; j < COL_CHOICE && (ids_[CHOICE] - 5) / 2 < files.size(); ++j){
+		// adding block
+		elements_[CHOICE][ids_[CHOICE]] = new Element(&pattern_no_img_);
+		elements_[CHOICE][ids_[CHOICE]]->setValue(0, 0.5); // plan
+		elements_[CHOICE][ids_[CHOICE]]->setValue(1,
+							  size_col * (j + 0.1) + cursor,
+							  0.8 - size_row * (i + 0.1 + 1)); // offset
+		elements_[CHOICE][ids_[CHOICE]]->setValue(2,
+							  size_col * 0.8,
+							  size_row * 0.8); // size
+		elements_[CHOICE][ids_[CHOICE]]->setValue(3, 0.8, 0.8, 0.8); // color
+		elements_[CHOICE][ids_[CHOICE]]->setOnClick(button);
+		++ids_[CHOICE];
+		
+		// adding text
+		elements_[CHOICE][ids_[CHOICE]] = new Element(&pattern_img_);
+		elements_[CHOICE][ids_[CHOICE]]->setValue(0, 0.5); // plan
+		elements_[CHOICE][ids_[CHOICE]]->setValue(1,
+							  size_col * (j + 0.15),
+							  0.8 - size_row * (i + 0.15 + 1)); // offset
+		elements_[CHOICE][ids_[CHOICE]]->setValue(2,
+							  size_col * 0.7,
+							  size_row * 0.7); // size
+
+		LOG_DEBUG(files[(ids_[CHOICE] - 5) / 2]);
+		surface = TTF_RenderText_Blended(font_, files[(ids_[CHOICE] - 5) / 2].c_str(), {0, 0, 0, 255});
+		if(!surface){
+		    throw Errors::FontToSurface();
+		}
+		elements_[CHOICE][ids_[CHOICE]]->setTexture(surface);
+		elements_[CHOICE][ids_[CHOICE]]->setTextureId(4);
+		ids_[CHOICE]++;
+	    }
+	}
+	++cursor;
+    }
+
+    LOG_DEBUG("id : " << ids_[CHOICE]);
+
+    cursor = 0;
 }
 
 void Window::load_grid(const std::string& path){
@@ -596,6 +748,7 @@ void Window::keyEvent(GLFWwindow * window, int key, int action){
 		state_ = QUIT;
 		break;
 	    case GAME:
+	    case CHOICE:
 		state_ = MENU;
 		break;
 	    }
