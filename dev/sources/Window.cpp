@@ -354,6 +354,7 @@ void Window::game_mode(){
 	elements_[GAME][0]->setOnClick(
 	    [&](Window * w, Element * e, int buttons[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mode, GLfloat x_, GLfloat y_){
 		const int BLACK = grid_.getColors().getColorFromName("black");
+		const int WHITE = grid_.getColors().getColorFromName("white");
 		
 		size_t i = 1;
 		size_t x = x_ * grid_.getGrille()[0].size();
@@ -441,7 +442,7 @@ void Window::game_mode(){
 			    LOG_DEBUG("3");
 
 			    // setting the grid_
-			    grid_.setGrilleIJ(x,y,-1,BLACK);
+			    grid_.setGrilleIJ(x,y,-1,WHITE);
 			}else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
 			    // removing a cross
 			    for(int j = 1; j >= 0; --j){
@@ -468,11 +469,18 @@ void Window::game_mode(){
 			    }
 
 			    // setting the grid_
-			    grid_.setGrilleIJ(x,y,-1,BLACK);
+			    grid_.setGrilleIJ(x,y,-1,WHITE);
 			}
 		    }
 		}
-	        
+
+		for(unsigned i = 0; i < grid_.getGrille().size(); ++i){
+		    LOG_DEBUG("ligne " << i << " : " << grid_.checkFinishedClassicLigne(i));
+		}
+		for(unsigned i = 0; i < grid_.getGrille()[0].size(); ++i){
+		    LOG_DEBUG("ligne " << i << " : " << grid_.checkFinishedClassicColonne(i));
+		}
+		
 		if(!finished && grid_.checkFinishedClassicGrid()){
 		    LOG_DEBUG("Finished");
 		    
