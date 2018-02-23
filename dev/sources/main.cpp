@@ -1,6 +1,7 @@
 #include <iostream>
 
 #define LOG_OUTPUT std::cout
+#include "Debug.hpp"
 #include "Window.hpp"
 
 int main(int, char**){

@@ -131,7 +131,7 @@ Picross::Picross(const string & path) {
      while (id[i]>47 && id[i]<58)
         ++i;
      id.erase(i);
-     SHOW_LOG(id);
+     LOG_DEBUG(id);
 
      pElement = pRoot->FirstChildElement("description");
      description = getXMLText (pElement,"description");
@@ -146,31 +146,7 @@ Picross::Picross(const string & path) {
 }
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 Picross::Picross(const Picross& p)
-    :title(p.getTitle())
-    ,author(p.getAuthor())
-    ,copyright(p.getCopyright())
-    ,description(p.getDescription())
-    ,nbLignes(p.getNbLignes())
-    ,nbColonnes(p.getNbColonnes())
-    ,colors(p.getColors())
-{
-    *this = p;
-}
-
-
-Picross& Picross::operator=(const Picross& p)
-=======
-Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor()),
-      copyright(p.getCopyright()), description(p.getDescription()),
-      nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
-      colors(p.getColors())
->>>>>>> Moteur
-=======
-Picross::Picross(const Picross& p)
->>>>>>> graphic
 {
     *this = p;
 }
@@ -811,7 +787,7 @@ int Picross::checkFinishedClassicGrid() {
     }
     i=0;
     while (i<nbColonnes && res == 1) {
-       res = checkFinishedClassicLigne(i);
+       res = checkFinishedClassicColonne(i);
        ++i;
     }
    

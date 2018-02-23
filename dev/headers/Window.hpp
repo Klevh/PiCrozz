@@ -66,6 +66,8 @@ class Window{
     ///< graphical representation of the grid
     size_t cursor;
     ///< cursor in choice mode
+    bool finished;
+    ///< tells whether the grid is finished or not
 
 public:
 // public values available for changing "page"
