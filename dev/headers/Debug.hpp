@@ -21,4 +21,8 @@
 #  define XMLCheckResult(a)
 #endif
 
+#ifdef LOG_OUTPUT
+#  define SHOW_WHERE(exception,err) LOG_OUTPUT << #exception " caught in file :\n\t" __FILE__ "\nCaught before line : " << __LINE__ << "\n\t"  << err.what() << std::endl;
+#endif
+
 #endif
