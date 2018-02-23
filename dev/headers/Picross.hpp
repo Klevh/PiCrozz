@@ -159,13 +159,13 @@ public:
      * for instance: if grille[i][j] was last set from InfoCase(-1,-1) to InfoCase(0,0)
      * it will set back grille[i][j] to InfoCase(-1,-1)
      */
-    void previousOp();
+    InfoCase previousOp();
     /**
      * @brief sets grille to its forward operation (if it exists, does nothing otherwise)
      * for instance: if grille[i][j] was set back from InfoCase(0,0) to InfoCase(-1,-1) thx to previousOp()
      * it will set back grille[i][j] to InfoCase(0,0)
      */
-    void forwardOp();
+    InfoCase forwardOp();
 
     // xml
     /**
