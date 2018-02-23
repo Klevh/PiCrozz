@@ -4,12 +4,24 @@
 
     //class OperationsQueue
 
+//constructeur
 OperationsQueue::OperationsQueue() : realLast(-1), currentLast(-1) {}
 
+//getters
 int OperationsQueue::getRealLast() const {return realLast;}
 int OperationsQueue::getCurrentLast() const {return currentLast;}
+const std::vector<std::tuple<int,int,InfoCase,InfoCase>>& OperationsQueue::getQueue() const {return queue;}
+
+//setters
+void OperationsQueue::setRealLast(int last) {realLast = last;}
+void OperationsQueue::setCurrentLast(int last) {currentLast = last;}
+void OperationsQueue::setQueueI (int i, const std::tuple<int,int,InfoCase,InfoCase> & t) {queue[i]=t;}
+
+//tests
 bool OperationsQueue::canWeForward () const {return currentLast < realLast;}
 bool OperationsQueue::canWePrevious () const {return currentLast > -1;}
+
+//others
 
 std::tuple<int,int,InfoCase,InfoCase> OperationsQueue::getPrevious() {
     std::tuple<int,int,InfoCase,InfoCase> t = queue[currentLast];
@@ -37,6 +49,9 @@ void OperationsQueue::addOp (const std::tuple<int,int,InfoCase,InfoCase> & t) {
         queue.resize(realLast+1);
     queue[realLast]= t;
 }
+
+
+void OperationsQueue::resize(int i) {queue.resize(i);}
 
 void OperationsQueue::display() const {
     std::tuple<int,int,InfoCase,InfoCase> t;

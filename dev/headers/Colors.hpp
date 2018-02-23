@@ -66,4 +66,7 @@ public:
 };
 
 
+std::ostream& operator<< (std::ostream &flux, Colors & c);
+std::ostream& operator<< (std::ostream &flux, const Colors & c);
+
 #endif // COLORS_HPP

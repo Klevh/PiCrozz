@@ -112,8 +112,6 @@ Picross::Picross(const string & path) {
        return tinyxml2::XML_ERROR_FILE_READ_ERROR;*/
 
      pElement = pRoot->FirstChildElement("title");
-
-     
      title = getXMLText (pElement,"title");
      LOG_DEBUG(title);
 
@@ -126,6 +124,14 @@ Picross::Picross(const string & path) {
      copyright = getXMLText (pElement,"copyright");
      LOG_DEBUG(copyright);
 
+     pElement = pRoot->FirstChildElement("id");
+     id = getXMLText (pElement,"id");
+     id.erase(0,1);
+     int i = 0;
+     while (id[i]>47 && id[i]<58)
+        ++i;
+     id.erase(i);
+     SHOW_LOG(id);
 
      pElement = pRoot->FirstChildElement("description");
      description = getXMLText (pElement,"description");
@@ -219,6 +225,7 @@ Picross& Picross::operator=(const Picross& p)
 int Picross::getNbLignes() const {return nbLignes;}
 int Picross::getNbColonnes() const {return nbColonnes;}
 const Colors& Picross::getColors() const {return colors;}
+const string& Picross::getId() const {return id;}
 const string& Picross::getTitle() const {return title;}
 const string& Picross::getAuthor() const {return author;}
 const string& Picross::getCopyright() const {return copyright;}
@@ -297,6 +304,22 @@ void Picross::setGrilleIJ(int i, int j, char c) {
     queue.addOp(t);
 }
 
+void Picross::setGrilleIJ(int i, int j,int type, char c) {
+    
+    std::tuple<int,int,InfoCase,InfoCase> t;
+    int color = colors.getColorFromChar(c);
+    
+    std::get<0> (t) = i;
+    std::get<1> (t) = j;
+    std::get<2> (t) = InfoCase(grille[i][j].getType(),grille[i][j].getColor());
+    std::get<3> (t) = InfoCase(type,color);
+
+    grille[i][j].setType(type);         //à modifier je pense
+    grille[i][j].setColor(color);
+
+    queue.addOp(t);
+}
+
 
 void Picross::setIndicationsLignesIJ (int i, int j, int type, int color) {
     
@@ -309,9 +332,6 @@ void Picross::setIndicationsColonnesIJ (int i, int j, int type, int color) {
     indicationsColonnes[i][j].setType(type);
     indicationsColonnes[i][j].setColor(color);
 }
-
-
-
 
 
 //queue
@@ -445,14 +465,368 @@ void Picross::getXMLGrid (tinyxml2::XMLElement* elmt) {
 
 
 
+
+
+
+
+//save /load
+
+void Picross::save() const {
+    
+    string chemin = "./ressources/Grids/Saves/";
+    chemin += id;
+    chemin += ".dat";
+
+    cout << "chemin:  " << chemin << endl;
+
+    try
+    {   
+        if (chemin == "")
+            throw "Chemin vide !";
+        if (chemin.size() > 300)
+            throw "Chemin trop long";
+        std::ofstream file (chemin.c_str(), std::ios::binary);
+        if (!file)
+        {
+            std::cerr << "\a\n\nImpossible de creer le fichier de sauvegarde\n\n";
+            return;
+        }
+        file.write ((char*) id.c_str(), id.size());
+        file.write ("\0", sizeof(char));
+        file.write ((char*) title.c_str(), title.size()+1);
+        file.write ((char*) author.c_str(), author.size()+1);
+        file.write ((char*) copyright.c_str(), copyright.size()+1);
+        file.write ((char*) description.c_str(), description.size()+1);
+        file.write ((char*) &nbLignes, sizeof (nbLignes));
+        file.write ((char*) &nbColonnes, sizeof (nbColonnes));
+
+        int tempInt;
+
+        //save of colors
+        tempInt = colors.getNbColors();
+        file.write ((char*) &tempInt, sizeof (tempInt));
+        file.write ((char*) colors.getDefaultColor().c_str(), colors.getDefaultColor().size()+1);
+        tempInt = colors.getColorsList().size();
+        file.write ((char*) &tempInt, sizeof (tempInt));   //size of the vect (==nbColors ??)
+
+        for (unsigned i = 0; i<colors.getColorsList().size();i++) {
+            file.write ((char*) std::get<0> ( colors.getColorsList()[i]).c_str(), (std::get<0> ( colors.getColorsList()[i]) ).size() +1 );
+            tempInt = std::get<1> (colors.getColorsList()[i]);
+            file.write ((char*) &tempInt, sizeof (tempInt ) );
+            file.write ((char*) &( std::get<2> ( colors.getColorsList()[i]) ), sizeof (std::get<2> ( colors.getColorsList()[i]) ) );
+        }
+
+        //save of grille
+        for (int i = 0; i<nbLignes; i++) {
+            for (int j = 0; j<nbColonnes; j++) {
+                tempInt = grille[i][j].getType();
+                file.write ((char*) &tempInt, sizeof (tempInt));
+                tempInt = grille[i][j].getColor();
+                file.write ((char*) &tempInt, sizeof (tempInt));
+            }
+        }
+
+        //save of indicationsLignes
+        for (int i = 0; i<nbLignes; i++) {
+            tempInt = indicationsLignes[i].size();
+            cout<<"SAVEtempINT : " <<tempInt;
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            for (unsigned j = 0; j<indicationsLignes[i].size(); j++) {
+                tempInt = indicationsLignes[i][j].getType();
+                cout<<"  type : " <<tempInt;
+                file.write ((char*) &tempInt, sizeof (tempInt));
+                tempInt = indicationsLignes[i][j].getColor();
+                cout<<"  color : " <<tempInt<<endl;
+                file.write ((char*) &tempInt, sizeof (tempInt));
+            }
+        }
+
+        //save of indicationsColonnes
+        for (int i = 0; i<nbColonnes; i++) {
+            tempInt = indicationsColonnes[i].size();
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            for (unsigned j = 0; j<indicationsColonnes[i].size(); j++) {
+                tempInt = indicationsColonnes[i][j].getType();
+                file.write ((char*) &tempInt, sizeof (tempInt));
+                tempInt = indicationsColonnes[i][j].getColor();
+                file.write ((char*) &tempInt, sizeof (tempInt));
+            }
+        }
+
+        //save of queue
+
+        /*save la queue que si sa taille > 0*/
+
+        tempInt = queue.getRealLast();
+        file.write ((char*) &tempInt, sizeof (tempInt));
+        tempInt = queue.getCurrentLast();
+        file.write ((char*) &tempInt, sizeof (tempInt));
+        tempInt = queue.getQueue().size();
+        file.write ((char*) &tempInt, sizeof (tempInt));
+
+        for (unsigned i = 0; i<queue.getQueue().size(); i++) {
+            tempInt = std::get<0> (queue.getQueue()[i]);
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            tempInt = std::get<1> (queue.getQueue()[i]);
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            tempInt = std::get<2> (queue.getQueue()[i]).getType();
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            tempInt = std::get<2> (queue.getQueue()[i]).getColor();
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            tempInt = std::get<3> (queue.getQueue()[i]).getType();
+            file.write ((char*) &tempInt, sizeof (tempInt));
+            tempInt = std::get<3> (queue.getQueue()[i]).getColor();
+            file.write ((char*) &tempInt, sizeof (tempInt));
+        }
+
+
+
+        file.close();
+    }
+    catch (const char *exception)
+    {
+        std::cerr << "\n*** " << exception << " ***\n";
+    }
+    catch (...)
+    {
+        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+    }
+}
+
+
+void Picross::load(const string& idGrid) {
+    
+    string chemin = "./ressources/Grids/Saves/";
+    chemin += idGrid;
+    chemin += ".dat";
+
+    try
+    {
+        if (chemin == "")
+            throw "Chemin vide !";
+        if (chemin.size() > 300)
+            throw "Chemin trop long";
+        std::ifstream file(chemin.c_str(), std::ios::binary);
+        if (!file)
+        {
+            std::cerr << "\a\n\nImpossible de lire le fichier de sauvegarde\n\n";
+            return;
+        }
+
+        //load of attributes from picross
+        std::getline(file, id, '\0');
+        std::getline(file, title, '\0');
+        std::getline(file, author, '\0');
+        std::getline(file, copyright, '\0');
+        std::getline(file, description, '\0');
+        file.read ((char*) &nbLignes, sizeof (nbLignes));
+        file.read ((char*) &nbColonnes, sizeof (nbColonnes));
+
+        int tempInt, tempInt2, tempInt3;
+        char tempChar;
+        string tempString;
+
+        //load of colors
+        file.read ((char*) &tempInt, sizeof (tempInt));
+        colors.setNbColors(tempInt);
+
+        std::getline(file, tempString, '\0');
+        colors.setDefaultColor(tempString);
+
+        file.read ((char*) &tempInt, sizeof (tempInt));
+        //colors.getColorsList().resize(tempInt);
+
+        for (int i = 0; i<tempInt;i++) {
+            std::getline(file, tempString, '\0');
+            file.read ((char*) &tempInt2, sizeof (tempInt2) );
+            file.read ((char*) &tempChar, sizeof (tempChar) );
+            colors.addColor(tempString,tempInt2,tempChar);
+        }
+
+        //load of grille
+        grille.resize(nbLignes);
+        for (int i = 0; i<nbLignes; i++)
+            grille[i].resize(nbColonnes);
+
+        for (int i = 0; i<nbLignes; i++) {
+            for (int j = 0; j<nbColonnes; j++) {
+                file.read ((char*) &tempInt2, sizeof (tempInt2));
+                file.read ((char*) &tempInt3, sizeof (tempInt3));
+                initiateGrilleIJ(i,j,tempInt2,tempInt3);
+            }
+        }
+
+        //load of indicationsLignes
+        indicationsLignes.resize(nbLignes);
+        for (int i = 0; i<nbLignes; i++) {
+            file.read ((char*) &tempInt, sizeof (tempInt));
+            indicationsLignes[i].resize(tempInt);
+            cout<<"tempINT : " <<tempInt << "\n";
+            for (int j = 0; j<tempInt; j++) {
+                file.read ((char*) &tempInt2, sizeof (tempInt2));
+                file.read ((char*) &tempInt3, sizeof (tempInt3));
+                setIndicationsLignesIJ(i,j,tempInt2,tempInt3);
+            }
+        }
+
+        //load of indicationsColonnes
+        indicationsColonnes.resize(nbColonnes);
+        for (int i = 0; i<nbColonnes; i++) {
+            file.read ((char*) &tempInt, sizeof (tempInt));
+            indicationsColonnes[i].resize(tempInt);
+            for (int j = 0; j<tempInt; j++) {
+                file.read ((char*) &tempInt2, sizeof (tempInt2));
+                file.read ((char*) &tempInt3, sizeof (tempInt3));
+                setIndicationsColonnesIJ(i,j,tempInt2,tempInt3);
+            }
+        }
+
+        //load of queue
+        file.read ((char*) &tempInt, sizeof (tempInt));
+        queue.setRealLast(tempInt);
+        file.read ((char*) &tempInt, sizeof (tempInt));
+        queue.setCurrentLast(tempInt);
+        file.read ((char*) &tempInt, sizeof (tempInt));
+        queue.resize(tempInt);
+
+        for (int i = 0; i<tempInt; i++) {
+            std::tuple<int,int,InfoCase,InfoCase> t;
+            file.read ((char*) &std::get<0>(t), sizeof (tempInt2));
+            //std::get<0> (t) = tempInt2;
+            file.read ((char*) &std::get<1>(t), sizeof (tempInt2));
+            //std::get<1> (t) = tempInt2;
+            file.read ((char*) &tempInt2, sizeof (tempInt2));
+            std::get<2>(t).setType(tempInt2);
+            file.read ((char*) &tempInt2, sizeof (tempInt2));
+            std::get<2>(t).setColor(tempInt2);
+            file.read ((char*) &tempInt2, sizeof (tempInt2));
+            std::get<3>(t).setType(tempInt2);
+            file.read ((char*) &tempInt2, sizeof (tempInt2));
+            std::get<3>(t).setColor(tempInt2);
+
+            queue.setQueueI(i,t);
+        }
+
+        //voir si on peut save une InfoCase d'un coup
+
+        file.close();
+    }
+    catch (const char *exception)
+    {
+        std::cerr << "\n*** " << exception << " ***\n";
+    }
+    catch (...)
+    {
+        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+    }
+}
+
+
+
+
+int Picross::checkFinishedClassicLigne(int i) {
+   int res = 1;
+    int j = 0;
+    int color;
+    unsigned idBloc = 0;
+    int currentBlocSize = 0;
+    int nbCasesTotalActuel = 0, nbCasesTotalReel = 0;
+
+    while (j<nbColonnes && res == 1 /*&& idBloc < (indicationsLignes[i].size() - 1)*/ ) {
+        color = indicationsLignes[i][idBloc].getColor();
+
+        if (color == grille[i][j].getColor()) {
+            while(j<nbColonnes && (color == grille[i][j].getColor()  )  ) {
+                ++currentBlocSize;
+                ++nbCasesTotalActuel;
+                ++j;
+            }
+            if (indicationsLignes[i][idBloc].getType() != currentBlocSize)
+                res=0;
+
+            currentBlocSize=0;
+            ++idBloc;
+        }
+
+        else
+            ++j;
+    }
+
+    for(unsigned k = 0; k<indicationsLignes[i].size(); k++) {
+        nbCasesTotalReel += indicationsLignes[i][k].getType();
+    }
+    if(nbCasesTotalActuel != nbCasesTotalReel)
+        res = 0;
+
+    return res;
+}
+
+
+int Picross::checkFinishedClassicColonne(int j) {
+    int res = 1;
+    int i = 0;
+    int color;
+    unsigned idBloc = 0;
+    int currentBlocSize = 0;
+    int nbCasesTotalActuel = 0, nbCasesTotalReel = 0;
+
+    while (i<nbLignes && res == 1 /*&& idBloc < (indicationsColonnes[j].size() - 1)*/ ) {
+        color = indicationsColonnes[j][idBloc].getColor();
+
+
+        if (color == grille[i][j].getColor()) {
+            while(i<nbLignes && (color == grille[i][j].getColor()  )  ) {
+                ++currentBlocSize;
+                ++nbCasesTotalActuel;
+                ++i;
+            }
+            if (indicationsColonnes[j][idBloc].getType() != currentBlocSize)
+                res=0;
+
+            currentBlocSize=0;
+            ++idBloc;
+        }
+
+        else
+            ++i;
+    }
+
+    for(unsigned k = 0; k<indicationsColonnes[j].size(); k++) {
+        nbCasesTotalReel += indicationsColonnes[j][k].getType();
+    }
+    if(nbCasesTotalActuel != nbCasesTotalReel)
+        res = 0;
+
+    return res;
+}
+
+
+int Picross::checkFinishedClassicGrid() {
+    int res = 1;
+
+    int i =0;
+    while (i<nbLignes && res == 1) {
+        res = checkFinishedClassicLigne(i);
+        ++i;
+    }
+    i=0;
+    while (i<nbColonnes && res == 1) {
+       res = checkFinishedClassicLigne(i);
+       ++i;
+    }
+   
+    return res;
+}
+
+
 void Picross::displayClassic() const {
 
-    int margin = 10;
+    //int margin = 10;
     int temp = 0;
     //affichage grille + indications lignes après
 
-    int max = getMaxSizeIndicationsColonnes();
-    int size = 0;
+    //int max = getMaxSizeIndicationsColonnes();
+    //int size = 0;
 
     /*
     for (int j = 0; j<max; j++) {
@@ -476,7 +850,7 @@ void Picross::displayClassic() const {
 
     for (int i = 0; i<nbColonnes; i++) {
         cout<<"|";
-        for (int j = 0; j<indicationsColonnes[i].size(); j++) {
+        for (unsigned j = 0; j<indicationsColonnes[i].size(); j++) {
 
             cout<< indicationsColonnes[i][j].getType()<<"|";
         }
@@ -519,3 +893,58 @@ void Picross::displayClassic() const {
 
 }
 
+
+
+
+
+std::ostream& operator<< (std::ostream &flux, Picross & p)
+{
+    try
+    {
+        flux << "\nid : " << p.getId()
+        << "\ntitle : " << p.getTitle()
+        << "\nauthor : " << p.getAuthor()
+        << "\ncopyright : " << p.getCopyright()
+        << "\ndescription : " << p.getDescription()
+        << "\nnbLignes : " << p.getNbLignes()
+        << "\nnbColonnes : " << p.getNbColonnes()
+        <<"\n\nCOLORS" << p.getColors()
+        << "\n\nINDICATIONS LIGNES\n";
+
+        for (int i = 0; i<p.getNbLignes(); i++) {
+            flux<<"|";
+            for (unsigned j = 0; j<p.getIndicationsLignes()[i].size(); j++) {
+                flux<< p.getIndicationsLignes()[i][j].getType()<<"|";
+            }
+            flux<<"\n";
+        }
+        
+        flux<< "\n\nINDICATIONS COLONES\n";
+
+        for (int i = 0; i<p.getNbColonnes(); i++) {
+            flux<<"|";
+            for (unsigned j = 0; j<p.getIndicationsColonnes()[i].size(); j++) {
+                flux<< p.getIndicationsColonnes()[i][j].getType()<<"|";
+            }
+            cout<<"\n";
+        }
+
+        flux<< "\n\nGrille\n";
+
+        for (int i = 0; i<p.getNbLignes(); i++) {
+            flux<<"|";
+            for(int j = 0; j<p.getNbColonnes(); j++) {
+                int color = p.getGrille()[i][j].getColor();
+                //cout << "color: " << color <<endl;
+                flux << p.getColors().getCharFromColor(color) << "|";
+            }
+            flux<<"\n";
+        }
+
+    }
+    catch (...)
+    {
+        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+    }
+    return flux;
+}

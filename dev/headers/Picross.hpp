@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <iostream>
 #include "tinyxml2.h"
 #include "InfoCase.hpp"
 #include "Colors.hpp"
@@ -46,6 +47,7 @@ public:
     int getNbLignes() const;
     int getNbColonnes() const;
     const Colors& getColors() const;
+    const std::string& getId() const;
     const std::string& getTitle() const;
     const std::string& getAuthor() const;
     const std::string& getCopyright() const;
@@ -104,14 +106,6 @@ public:
     void initiateGrilleIJ(int i, int j, int type, int color);
  
     /**
-     * @brief sets grille[i][j] knowing only the char of the color (will set type and color)
-     * also sets the queue
-     * @param i : row id
-     * @param j : column id
-     * @param char : char of the color of the box
-     */
-    void setGrilleIJ(int i, int j, int type, int color);
-    /**
      * @brief sets grille[i][j]
      * also sets the queue
      * @param i : row id
@@ -119,7 +113,25 @@ public:
      * @param type : type of the box block
      * @param color : color of the box block
      */
+    
+    void setGrilleIJ(int i, int j, int type, int color);
+    /**
+     * @brief sets grille[i][j] knowing only the char of the color (will set type and color)
+     * also sets the queue
+     * @param i : row id
+     * @param j : column id
+     * @param char : char of the color of the box
+     */
     void setGrilleIJ(int i, int j, char c); 
+
+    /*
+     * @brief sets indicationsLignes[i][j] with type and color of the box
+     * @param i : row id
+     * @param j : column id
+     * @param type : type of the box block
+     * @param char : char of the color of the box block
+     */
+    void setGrilleIJ(int i, int j, int type, char c); 
 
     /*
      * @brief sets indicationsLignes[i][j] with type and color of the box
@@ -138,13 +150,19 @@ public:
      */
     void setIndicationsColonnesIJ(int i, int j, int type, int color);
 
-    //queue
-    std::tuple<int,int,InfoCase> getPreviousOp();
-    std::tuple<int,int,InfoCase> getForwardOp();
-    void setPreviousOp();
-    void setForwardOp();
 
+    //queue
+    /**
+     * @brief sets grille to its previous operation (if it exists, does nothing otherwise)
+     * for instance: if grille[i][j] was last set from InfoCase(-1,-1) to InfoCase(0,0)
+     * it will set back grille[i][j] to InfoCase(-1,-1)
+     */
     void previousOp();
+    /**
+     * @brief sets grille to its forward operation (if it exists, does nothing otherwise)
+     * for instance: if grille[i][j] was set back from InfoCase(0,0) to InfoCase(-1,-1) thx to previousOp()
+     * it will set back grille[i][j] to InfoCase(0,0)
+     */
     void forwardOp();
 
     // xml
@@ -160,9 +178,38 @@ public:
     void getXMLGrid (tinyxml2::XMLElement* elmt);
 
 
+    // save / load
+
+    void save() const;
+    void load(const std::string & idGrid);
+
+    //check
+    int checkFinishedClassicLigne(int id);
+    int checkFinishedClassicColonne(int id);
+    int checkFinishedClassicGrid();
+
     //display
      void displayClassic() const;
+
 };
+
+
+
+
+
+
+std::ostream& operator<< (std::ostream &flux, Picross &p);
+
+
+
+
+
+
+
+
+
+
+
 
 
 class Resolution { //classe abstraite

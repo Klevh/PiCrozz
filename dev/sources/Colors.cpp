@@ -1,4 +1,5 @@
 #include "Colors.hpp"
+#include <iostream>
 
 using std::vector;
 using std::string;
@@ -84,4 +85,49 @@ void Colors::addColor(const string& s,int nb,char c) {
     std::get<2> (t) = c;
 
     colorsList.push_back(t);
+}
+
+
+
+std::ostream& operator<< (std::ostream &flux, Colors & c)
+{
+    try
+    {
+        flux << "\nnbColors : " << c.getNbColors()
+        << "\nDefaultColor : " << c.getDefaultColor();
+        
+        for (unsigned i = 0; i<c.getColorsList().size(); i++) {
+            flux << "\n string : " << std::get<0> (c.getColorsList()[i])
+            << "\n value : " << std::get<1> (c.getColorsList()[i])
+            << "\n char : " << std::get<2> (c.getColorsList()[i]);
+        }
+        flux << std::endl;
+    }
+    catch (...)
+    {
+        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+    }
+    return flux;
+}
+
+
+std::ostream& operator<< (std::ostream &flux, const Colors & c)
+{
+    try
+    {
+        flux << "\nnbColors : " << c.getNbColors()
+        << "\nDefaultColor : " << c.getDefaultColor();
+        
+        for (unsigned i = 0; i<c.getColorsList().size(); i++) {
+            flux << "\n string : " << std::get<0> (c.getColorsList()[i])
+            << "   value : " << std::get<1> (c.getColorsList()[i])
+            << "   char : " << std::get<2> (c.getColorsList()[i]);
+        }
+        flux << std::endl;
+    }
+    catch (...)
+    {
+        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+    }
+    return flux;
 }
