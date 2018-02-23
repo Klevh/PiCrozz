@@ -27,6 +27,9 @@ public:
      * @brief InfoCase constructor with attribute initialisation
      */
     InfoCase(int,int);
+
+    InfoCase(const InfoCase &);
+    InfoCase& operator=(const InfoCase&);
     
     //getters
     int getType() const;

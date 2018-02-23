@@ -326,27 +326,40 @@ void Picross::setIndicationsColonnesIJ (int i, int j, int type, int color) {
 
 InfoCase Picross::previousOp() {
 
+    InfoCase res;
+    res.setType(-1);
+    res.setColor(-1);
+
     if (queue.canWePrevious()) {
         std::tuple<int,int,InfoCase,InfoCase> t = queue.getPrevious();
         InfoCase inf = std::get<2>(t);
 
         grille[std::get<0>(t)][std::get<1>(t)].setType(inf.getType());
         grille[std::get<0>(t)][std::get<1>(t)].setColor(inf.getColor());
+
+        res = inf;
     }
 
-    return inf;
+    return res;
 }
 
 InfoCase Picross::forwardOp() {
+    
+    InfoCase res;
+    res.setType(-1);
+    res.setColor(-1);
+
     if (queue.canWeForward()) {
         std::tuple<int,int,InfoCase,InfoCase> t = queue.getForward();
 
         InfoCase inf = std::get<3>(t);
         grille[std::get<0>(t)][std::get<1>(t)].setType(inf.getType());
         grille[std::get<0>(t)][std::get<1>(t)].setColor(inf.getColor());
+
+        res = inf;
     }
 
-    return inf;
+    return res;
 }
 
 
