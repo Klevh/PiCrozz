@@ -122,6 +122,8 @@ public:
      * @param j : column id
      * @param char : char of the color of the box
      */
+
+    //A NE JAMAIS UTILISER
     void setGrilleIJ(int i, int j, char c); 
 
     /*
