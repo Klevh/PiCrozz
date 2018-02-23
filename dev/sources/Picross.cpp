@@ -242,8 +242,10 @@ void Picross::addIndicationsColonnes (int num_colonne, int type, int color) {
 
 
 void Picross::initiateGrilleIJ(int i, int j) {
+    int color = colors.getColorFromName("white");
+
     grille[i][j].setType(-1);
-    grille[i][j].setColor(-1);      //ou default color ?
+    grille[i][j].setColor(color);      //on met la couleur par défaut plutôt que -1 sauf que la couleur par défaut n'est pas celle rentrée dans Colors, c'est le blanc
 }
 
 void Picross::initiateGrilleIJ(int i, int j, int type, int color) {
@@ -628,7 +630,7 @@ void Picross::load(const string& idGrid) {
             for (int j = 0; j<nbColonnes; j++) {
                 file.read ((char*) &tempInt2, sizeof (tempInt2));
                 file.read ((char*) &tempInt3, sizeof (tempInt3));
-                initiateGrilleIJ(i,j,tempInt2,tempInt3);
+                initiateGrilleIJ(i,j,tempInt2,tempInt3);             //check
             }
         }
 
@@ -712,7 +714,8 @@ int Picross::checkFinishedClassicLigne(int i) {
         color = indicationsLignes[i][idBloc].getColor();
 
         if (color == grille[i][j].getColor()) {
-            while(j<nbColonnes && (color == grille[i][j].getColor()  )  ) {
+
+            while(j<nbColonnes && (color == grille[i][j].getColor()  )  && (grille[i][j].getType() == 1) ) {
                 ++currentBlocSize;
                 ++nbCasesTotalActuel;
                 ++j;
@@ -751,7 +754,8 @@ int Picross::checkFinishedClassicColonne(int j) {
 
 
         if (color == grille[i][j].getColor()) {
-            while(i<nbLignes && (color == grille[i][j].getColor()  )  ) {
+
+            while(i<nbLignes && (color == grille[i][j].getColor() )  && (grille[i][j].getType() == 1) ) {
                 ++currentBlocSize;
                 ++nbCasesTotalActuel;
                 ++i;
