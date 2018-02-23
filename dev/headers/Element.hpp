@@ -31,6 +31,8 @@ class Element{
     ///< texture of the element, if any
     int surface_id_;
     ///< id of the texture in uniform_values_
+    GLuint texture_;
+    ///< texture
     
 public:
     typedef OnClick_window OnClick;
@@ -88,7 +90,7 @@ public:
     /**
      * @brief Draw the element
      */
-    virtual void draw() const;
+    virtual void draw();
     /**
      * @brief Click on the element
      * @param window : window that received the event

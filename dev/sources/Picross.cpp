@@ -141,6 +141,7 @@ Picross::Picross(const string & path) {
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Picross::Picross(const Picross& p)
     :title(p.getTitle())
     ,author(p.getAuthor())
@@ -161,6 +162,9 @@ Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor())
       nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
       colors(p.getColors())
 >>>>>>> Moteur
+=======
+Picross::Picross(const Picross& p)
+>>>>>>> graphic
 {
     *this = p;
 }
@@ -168,19 +172,26 @@ Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor())
 
 Picross& Picross::operator=(const Picross& p)
 {
+    title = p.getTitle();
+    author = p.getAuthor();
+    copyright = p.getCopyright();
+    description = p.getDescription();
+    nbLignes = p.grille.size();
+    nbColonnes = p.grille[0].size();
+    colors = p.getColors();
 
     grille.resize(nbLignes);
+
     for (int i = 0; i<nbLignes; i++) {
         grille[i].resize(nbColonnes);
         for(int j = 0; j<nbColonnes; j++) {
-
             initiateGrilleIJ(i,j,p.getGrille()[i][j].getType(),p.getGrille()[i][j].getColor());
         }
     }
      
-     //cout<< "lignes" <<endl;
-     indicationsLignes.resize(nbLignes);
-     for(int i = 0; i<nbLignes; i++) {
+    LOG_DEBUG("Lignes");
+    indicationsLignes.resize(p.getIndicationsLignes().size());
+    for(int i = 0; i<nbLignes; i++) {
         unsigned len = p.getIndicationsLignes()[i].size();
         indicationsLignes[i].resize(len);
         for(unsigned j = 0; j<len; j++) {
@@ -188,10 +199,10 @@ Picross& Picross::operator=(const Picross& p)
             setIndicationsLignesIJ(i,j,p.getIndicationsLignes()[i][j].getType(),p.getIndicationsLignes()[i][j].getColor());
         }
     }
-     
-     //cout<< "Colonnes" <<endl;
-     indicationsColonnes.resize(nbColonnes);
-     for(int i = 0; i<nbColonnes; i++) {
+
+    LOG_DEBUG("Colonnes");
+    indicationsColonnes.resize(p.getIndicationsColonnes().size());
+    for(int i = 0; i<nbColonnes; i++) {
         unsigned len = p.getIndicationsColonnes()[i].size();
         indicationsColonnes[i].resize(len);
         for(unsigned j = 0; j<len; j++) {

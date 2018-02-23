@@ -2,30 +2,29 @@ cmake_minimum_required(VERSION 3.5)
 
 # Nom du projet
 
-project(PiCrozz)
+project(PiCrozz_test)
 
 # creation executable
 
 add_executable(
-  PiCrozz
+  PiCrozz_test
   # add cpp files here (without main)
   sources/main.cpp
-  sources/Window.cpp
-  sources/Errors.cpp
-  sources/Element.cpp
-  sources/Program.cpp
-  sources/Pattern.cpp
-  sources/Picross.cpp
-  sources/Colors.cpp
-  sources/InfoCase.cpp
-  sources/tinyxml2.cpp
-  sources/Vec3.cpp
-  sources/OperationsQueue.cpp
+  ../sources/Window.cpp
+  ../sources/Errors.cpp
+  ../sources/Element.cpp
+  ../sources/Program.cpp
+  ../sources/Pattern.cpp
+  ../sources/Picross.cpp
+  ../sources/Colors.cpp
+  ../sources/InfoCase.cpp
+  ../sources/tinyxml2.cpp
+  ../sources/Vec3.cpp
 )
 
 # c++ version
 set_target_properties(
-  PiCrozz
+  PiCrozz_test
   PROPERTIES
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED ON
@@ -33,7 +32,7 @@ set_target_properties(
 
 # trouver les packages
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../cmake")
 
 find_package(OpenGL REQUIRED)
 IF(OpenGL_FOUND)
@@ -70,27 +69,6 @@ ELSE()
   MESSAGE(ERROR " SDL2_ttf not found")
 ENDIF()
 
-find_package(Boost REQUIRED)
-IF(Boost_FOUND)
-  MESSAGE(INFO " Boost lib found at ${Boost_LIBRARIES}")
-ELSE()
-  MESSAGE(ERROR " Boost not found")
-ENDIF()
-
-find_package(Boost COMPONENTS filesystem REQUIRED)
-IF(Boost_FILESYSTEM_FOUND)
-  MESSAGE(INFO " Boost filesystem lib found at ${Boost_FILESYSTEM_LIBRARIES}")
-ELSE()
-  MESSAGE(ERROR " Boost filesystem not found")
-ENDIF()
-
-find_package(Boost COMPONENTS system REQUIRED)
-IF(Boost_SYSTEM_FOUND)
-  MESSAGE(INFO " Boost system lib found at ${Boost_FILESYSTEM_LIBRARIES}")
-ELSE()
-  MESSAGE(ERROR " Boost system not found")
-ENDIF()
-
 # enlever la compilation des tests GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -99,13 +77,11 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 # linkage librairie externe
 
 target_link_libraries(
-  PiCrozz
+  PiCrozz_test
   # toutes les dependances (glew, glfw, ...)
   # chercher find package cmake
   ${GLEW_LIBRARIES}
   ${OPENGL_LIBRARIES}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
   glfw
   -lSDL2
   -lSDL2_ttf
@@ -114,9 +90,13 @@ target_link_libraries(
 # adding include dir
 
 target_include_directories(
-  PiCrozz
-  PUBLIC headers/
-  ${Boost_INCLUDE_DIRS})
+  PiCrozz_test
+  PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/../headers/"
+  "${CMAKE_CURRENT_SOURCE_DIR}/headers/")
+
+get_target_property(debug PiCrozz_test INTERFACE_INCLUDE_DIRECTORIES)
+message("${debug}")
 
 # options de compilations
 
@@ -126,6 +106,6 @@ add_compile_options(
 # copie des fichiers dans le build
 
 file(GLOB SHADERS
-  "${PROJECT_SOURCE_DIR}/ressources/*")
+  "${PROJECT_SOURCE_DIR}/../ressources/*")
 
 file(COPY ${SHADERS} DESTINATION ${CMAKE_BINARY_DIR}/ressources)

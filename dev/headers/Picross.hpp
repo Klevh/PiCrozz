@@ -7,7 +7,7 @@
 #include "tinyxml2.h"
 #include "InfoCase.hpp"
 #include "Colors.hpp"
-//#include "OperationsQueue.hpp"
+#include "OperationsQueue.hpp"
 
 
 class Picross {
@@ -23,7 +23,7 @@ class Picross {
     std::vector< std::vector<InfoCase> > grille;                 /**< grid of Picross, grille[i][j] is the box of the i th row and j th column*/
     std::vector< std::vector<InfoCase> > indicationsLignes;      /**< information about the rows */
     std::vector< std::vector<InfoCase> > indicationsColonnes;    /**< information about the columns */
-    //OperationsQueue queue;                                       /**< stack of game operations, see Documentation of class OperationsQueue */
+    OperationsQueue queue;                                       /**< stack of game operations, see Documentation of class OperationsQueue */
      
 public:
     //constructeurs
