@@ -362,7 +362,7 @@ void Window::game_mode(){
 		x = std::min((size_t)(grid_.getGrille()[0].size()),x);
 		y = std::min((size_t)(grid_.getGrille().size()),y);
 
-		LOG_DEBUG(x << " - " << y);
+		LOG_DEBUG("coord : " << x << " - " << y);
 		LOG_DEBUG(ihm_grid_[x][y].e[0]);
 
 		if(!finished){
@@ -388,7 +388,7 @@ void Window::game_mode(){
 			    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
 
 			    // setting the grid_
-			    grid_.setGrilleIJ(x,y,1,BLACK);
+			    grid_.setGrilleIJ(y,x,1,BLACK);
 			}else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_LEFT] != GLFW_PRESS){
 			    // adding a cross
 			    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
@@ -409,10 +409,10 @@ void Window::game_mode(){
 				elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(3,0,0,0); // set color
 				elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(4,-45 + 90 * i); // set rotation
 			    }
+			    
+			    // setting the grid_
+			    grid_.setGrilleIJ(y,x,0,BLACK);
 			}
-
-			// setting the grid_
-			grid_.setGrilleIJ(x,y,0,BLACK);
 		    }else{
 			if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
 			    LOG_DEBUG("id in v : " << ihm_grid_[x][y].id[0]);
@@ -442,7 +442,7 @@ void Window::game_mode(){
 			    LOG_DEBUG("3");
 
 			    // setting the grid_
-			    grid_.setGrilleIJ(x,y,-1,WHITE);
+			    grid_.setGrilleIJ(y,x,-1,WHITE);
 			}else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
 			    // removing a cross
 			    for(int j = 1; j >= 0; --j){
@@ -469,16 +469,9 @@ void Window::game_mode(){
 			    }
 
 			    // setting the grid_
-			    grid_.setGrilleIJ(x,y,-1,WHITE);
+			    grid_.setGrilleIJ(y,x,-1,WHITE);
 			}
 		    }
-		}
-
-		for(unsigned i = 0; i < grid_.getGrille().size(); ++i){
-		    LOG_DEBUG("ligne " << i << " : " << grid_.checkFinishedClassicLigne(i));
-		}
-		for(unsigned i = 0; i < grid_.getGrille()[0].size(); ++i){
-		    LOG_DEBUG("ligne " << i << " : " << grid_.checkFinishedClassicColonne(i));
 		}
 		
 		if(!finished && grid_.checkFinishedClassicGrid()){
