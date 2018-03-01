@@ -249,6 +249,7 @@ void Window::game_mode(){
 			       + max_column * grid_.getGrille().size()
 			       + max_row * grid_.getGrille()[0].size()
 			       + 2 // check telling that the grid is ok
+			       + 2 // arrows to go backward / forward
 	    ); // number of blocks * 2 (for the cross)
 	std::generate(elements_[GAME].begin(),elements_[GAME].end(),
 		      [](){return nullptr;});
@@ -268,6 +269,60 @@ void Window::game_mode(){
 	for(std::vector<GridCase>& v : ihm_grid_){
 	    v.resize(grid_.getGrille()[0].size());
 	}
+
+	// backward arrow
+	auto backward = [&](...){
+	    if(!finished){
+		LOG_DEBUG("Backward");
+		grid_.previousOp();
+	    }
+	    
+	    return true;
+	};
+	
+	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
+	elements_[GAME][ids_[GAME]]->setValue(1, 0.02, 0.93); // set offset
+	elements_[GAME][ids_[GAME]]->setValue(2, 0.03, 0.03); // set size
+	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setValue(4, 40); // rotation
+	elements_[GAME][ids_[GAME]]->setOnClick(backward);
+	++ids_[GAME];
+	
+	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
+	elements_[GAME][ids_[GAME]]->setValue(1, 0.035, 0.935); // set offset
+	elements_[GAME][ids_[GAME]]->setValue(2, 0.04, 0.02); // set size
+	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setOnClick(backward);
+	++ids_[GAME];
+	
+	// forward arrow
+	auto forward = [&](...){
+	    if(!finished){
+		LOG_DEBUG("Forward");
+		grid_.forwardOp();
+	    }
+	    
+	    return true;
+	};
+	
+	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
+	elements_[GAME][ids_[GAME]]->setValue(1, 0.15, 0.93); // set offset
+	elements_[GAME][ids_[GAME]]->setValue(2, 0.03, 0.03); // set size
+	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setValue(4, 40); // rotation
+	elements_[GAME][ids_[GAME]]->setOnClick(forward);
+	++ids_[GAME];
+	
+	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
+	elements_[GAME][ids_[GAME]]->setValue(1, 0.13, 0.935); // set offset
+	elements_[GAME][ids_[GAME]]->setValue(2, 0.04, 0.02); // set size
+	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setOnClick(forward);
+	++ids_[GAME];
 
 	// rows indications
 	double size_row = 0.2 / max_row;
@@ -496,6 +551,8 @@ void Window::game_mode(){
 
 		    ++ids_[GAME];
 		}
+
+		return false;
 	    });
     }
 }
@@ -530,6 +587,7 @@ void Window::menu_mode(){
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = QUIT;
+	    return false;
 	});
     
     elements_[MENU][2]->setOnClick(
@@ -538,6 +596,7 @@ void Window::menu_mode(){
 		choice_mode();
 		state_ = CHOICE;
 	    }
+	    return false;
 	});
 
     elements_[MENU].push_back(new Element(&pattern_img_));
@@ -592,6 +651,8 @@ void Window::choice_mode(){
 		elements_[CHOICE][3]->setValue(3, 0.4, 0.4, 0.4);
 	    }
 	}
+
+	return false;
     };
     auto back = [&](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){
 	if(cursor){
@@ -614,6 +675,8 @@ void Window::choice_mode(){
 		elements_[CHOICE][1]->setValue(3, 0.4, 0.4, 0.4);
 	    }
 	}
+
+	return false;
     };
 
     // creating choice button behavior
@@ -637,6 +700,8 @@ void Window::choice_mode(){
 			+ ".xml");
 	
 	game_mode();
+
+	return true;
     };
     
     // creating next/back button
@@ -763,8 +828,9 @@ void Window::click(GLFWwindow * win, int button, int action, int mods){
 	    
 	    if(elements_[state_][i]
 	       && x >= coords[0] * w && x < (coords[0] + dimension[0]) * w
-	       && y < (1 - coords[1]) * h && y >= ((1 - coords[1]) - dimension[1]) * h){
-		elements_[state_][i]->click(this, states, action, mods, (x * 1. / w - coords[0]) / dimension[0], ((h - y) * 1. / h - coords[1]) / dimension[1]);
+	       && y < (1 - coords[1]) * h && y >= ((1 - coords[1]) - dimension[1]) * h
+	       && elements_[state_][i]->click(this, states, action, mods, (x * 1. / w - coords[0]) / dimension[0], ((h - y) * 1. / h - coords[1]) / dimension[1])){
+		break;
 	    }
 	}
 	last_click = clicked;

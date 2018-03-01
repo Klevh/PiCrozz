@@ -19,7 +19,7 @@ class Element{
     /**
      * @brief Element's onclick behavior type, it is a function/lambda/foncter having the same parameters as mouse button callback of GLFW but there is an Element * between the GLFWwindow * and the first int. The two last GLfloat are the location of the click in the element (both from 0 to 1)
      */
-    typedef std::function <void(Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat)> OnClick_window;
+    typedef std::function <bool(Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat)> OnClick_window;
     
     OnClick_window onclick_;
     ///< on click element's behavior
@@ -42,7 +42,7 @@ public:
      * @param pattern : pattern of the element
      * @param onclick : behavior of the element
      */
-    Element(Pattern * pattern, OnClick onclick = [](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){});
+    Element(Pattern * pattern, OnClick onclick = [](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){return false;});
     /**
      * @brief Element's destructor
      */
@@ -100,7 +100,7 @@ public:
      * @param x : x coordinate of the click in the element (from 0 to 1)
      * @param y : y coordinate of the click in the element (from 0 to 1)
      */
-    void click(Window * window, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod, GLfloat x, GLfloat y);
+    bool click(Window * window, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod, GLfloat x, GLfloat y);
 };
 
 #endif

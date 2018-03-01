@@ -74,6 +74,6 @@ void Element::draw(){
     }
 }
 
-void Element::click(Window * window,  int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod, GLfloat x, GLfloat y){
-    onclick_(window,this,states,action,mod,x,y);
+bool Element::click(Window * window,  int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mod, GLfloat x, GLfloat y){
+    return onclick_(window,this,states,action,mod,x,y);
 }
