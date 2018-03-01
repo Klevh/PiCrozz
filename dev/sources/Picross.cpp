@@ -315,12 +315,15 @@ void Picross::setIndicationsColonnesIJ (int i, int j, int type, int color) {
 
 //queue
 
-InfoCase Picross::previousOp() {
+std::tuple<int,int,InfoCase> Picross::previousOp() {
 
-    InfoCase res;
-    res.setType(-1);
-    res.setColor(-1);
-
+    std::tuple<int,int,InfoCase> res;
+    InfoCase temp;
+    std::get<0> (res) = -1;
+    std::get<1> (res) = -1;
+    temp.setType(-1);
+    temp.setColor(-1);
+    std::get<2> (res) = temp;
     if (queue.canWePrevious()) {
         std::tuple<int,int,InfoCase,InfoCase> t = queue.getPrevious();
         InfoCase inf = std::get<2>(t);
@@ -328,17 +331,23 @@ InfoCase Picross::previousOp() {
         grille[std::get<0>(t)][std::get<1>(t)].setType(inf.getType());
         grille[std::get<0>(t)][std::get<1>(t)].setColor(inf.getColor());
 
-        res = inf;
+        std::get<0> (res) = std::get<0>(t);
+        std::get<1> (res) = std::get<1>(t);
+        std::get<2> (res) = inf;
     }
 
     return res;
 }
 
-InfoCase Picross::forwardOp() {
+std::tuple<int,int,InfoCase> Picross::forwardOp() {
     
-    InfoCase res;
-    res.setType(-1);
-    res.setColor(-1);
+    std::tuple<int,int,InfoCase> res;
+    InfoCase temp;
+    std::get<0> (res) = -1;
+    std::get<1> (res) = -1;
+    temp.setType(-1);
+    temp.setColor(-1);
+    std::get<2> (res) = temp;
 
     if (queue.canWeForward()) {
         std::tuple<int,int,InfoCase,InfoCase> t = queue.getForward();
@@ -347,13 +356,18 @@ InfoCase Picross::forwardOp() {
         grille[std::get<0>(t)][std::get<1>(t)].setType(inf.getType());
         grille[std::get<0>(t)][std::get<1>(t)].setColor(inf.getColor());
 
-        res = inf;
+        std::get<0> (res) = std::get<0>(t);
+        std::get<1> (res) = std::get<1>(t);
+        std::get<2> (res) = inf;
     }
 
     return res;
 }
 
 
+bool Picross::canWePrevious () const {return queue.canWePrevious();}
+
+bool Picross::canWeForward () const {return queue.canWeForward();}
 
 
 //xml
