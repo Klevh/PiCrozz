@@ -131,7 +131,7 @@ Picross::Picross(const string & path) {
      while (id[i]>47 && id[i]<58)
         ++i;
      id.erase(i);
-     LOG_DEBUG(id);
+     LOG_DEBUG("id : " << id);
 
      pElement = pRoot->FirstChildElement("description");
      description = getXMLText (pElement,"description");
@@ -142,7 +142,6 @@ Picross::Picross(const string & path) {
 
      pElement = pRoot->FirstChildElement("clues");
      getXMLGrid(pElement);
-
 }
 
 
@@ -161,6 +160,8 @@ Picross& Picross::operator=(const Picross& p)
     nbLignes = p.grille.size();
     nbColonnes = p.grille[0].size();
     colors = p.getColors();
+    id = p.getId();
+    LOG_DEBUG("copy : id : " << id);
 
     grille.resize(nbLignes);
 

@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 
+# debug flag, to comment for release
+
+set(CMAKE_BUILD_TYPE Debug)
+
 # Nom du projet
 
 project(PiCrozz)

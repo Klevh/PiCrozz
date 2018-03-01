@@ -5,6 +5,7 @@
 #include <sstream>
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <cstdio>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -405,6 +406,54 @@ void Window::game_mode(){
 	}
 	ids_[GAME] += 1 + grid_.getGrille().size();
 
+	// placing already existing elements
+	for(unsigned x = 0; x < grid_.getGrille().size(); ++x){
+	    GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
+	    GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
+	    for(unsigned y = 0; y < grid_.getGrille()[y].size(); ++y){
+		switch(grid_.getGrille()[x][y].getType()){
+		case 0:
+		    // adding a cross
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+		        
+		    ihm_grid_[x][y].id[0] = ids_[GAME] - 2;
+		    ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+		    ihm_grid_[x][y].id[1] = ids_[GAME] - 1;
+		    ihm_grid_[x][y].e[1] = elements_[GAME][ihm_grid_[x][y].id[1]];
+		    ihm_grid_[x][y].state = 1;
+
+		    for(int i = 0; i < 2; ++i){
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(0,0.5); // set plan
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(1,0.201 + x * square_size,0.678 + grid_.getGrille().size() * 0.005 - y * square_size); // set offset
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(2,block_size,square_size / 8); // set size
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(3,0,0,0); // set color
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(4,-45 + 90 * i); // set rotation
+		    }
+		    break;
+		case 1:
+		    // adding a block
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+			
+		    ihm_grid_[x][y].id[0] = ids_[GAME] - 1;
+		    ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+		    ihm_grid_[x][y].state = 0;
+	        	
+		    LOG_DEBUG(ihm_grid_[x][y].id[0] << " " << ids_[GAME] - 1);
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(0, 0.5); // set plan
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(1,
+								     0.204 + 0.0003 * (10 - (int)grid_.getGrille()[0].size()) + x * square_size,
+								     0.805 + 0.0001 * (10 - (int)grid_.getGrille().size()) - (y + 1) * square_size); // set offset
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
+		    break;
+		}
+	    }
+	}
+
 	// interaction of the white background
 	elements_[GAME][0]->setOnClick(
 	    [&](Window * w, Element * e, int buttons[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mode, GLfloat x_, GLfloat y_){
@@ -550,6 +599,11 @@ void Window::game_mode(){
 		    elements_[GAME][ids_[GAME]]->setValue(4, 45); // set rotation angle
 
 		    ++ids_[GAME];
+
+		    // sauvegarde dans Grids/Finished fichier
+		    boost::filesystem::copy_file("ressources/Grids/Data/" + grid_.getId() + ".xml",
+						 "ressources/Grids/Finished/" + grid_.getId() + ".xml",
+						 boost::filesystem::copy_option::overwrite_if_exists);
 		}
 
 		return false;
@@ -615,7 +669,7 @@ void Window::menu_mode(){
 
 void Window::choice_mode(){
     SDL_Surface * surface;
-    std::vector<std::string> files = all_file_in_dir("ressources/");
+    std::vector<std::string> files = all_file_in_dir("ressources/Grids/Data");
 
     for(int i = 0; i < ids_[CHOICE]; ++i){
 	delete elements_[CHOICE][i];
@@ -632,7 +686,7 @@ void Window::choice_mode(){
     // creating next and back behavior
     auto next = [&](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){
 	if((cursor + 1) * ROW_CHOICE * COL_CHOICE * 2 < ids_[CHOICE]){
-	    // changing back button color
+	    // changing back button color if going backward is possible
 	    if(!cursor){ 
 		elements_[CHOICE][1]->setValue(3, 0.8, 0.8, 0.8);
 	    }
@@ -646,7 +700,7 @@ void Window::choice_mode(){
 
 	    ++cursor;
 	    
-	    // changing next button color
+	    // changing next button color if no more next
 	    if((cursor + 1) * ROW_CHOICE * COL_CHOICE * 2 >= ids_[CHOICE]){ 
 		elements_[CHOICE][3]->setValue(3, 0.4, 0.4, 0.4);
 	    }
@@ -656,7 +710,7 @@ void Window::choice_mode(){
     };
     auto back = [&](Window*,Element*,int[GLFW_MOUSE_BUTTON_LAST + 1],int,int,GLfloat,GLfloat){
 	if(cursor){
-	    // changing next button color
+	    // changing next button color if going forward is possible
 	    if((cursor + 1) * ROW_CHOICE * COL_CHOICE * 2 >= ids_[CHOICE]){ 
 		elements_[CHOICE][3]->setValue(3, 0.8, 0.8, 0.8);
 	    }
@@ -670,7 +724,7 @@ void Window::choice_mode(){
 
 	    --cursor;
 	    
-	    // changing next button color
+	    // changing back button color if no more back elements
 	    if(!cursor){ 
 		elements_[CHOICE][1]->setValue(3, 0.4, 0.4, 0.4);
 	    }
@@ -694,10 +748,24 @@ void Window::choice_mode(){
 		  files[cursor * ROW_CHOICE * COL_CHOICE
 			+ ROW_CHOICE * off_col + off_row]);
 	
-        grid_ = Picross("ressources/"
+        grid_ = Picross("ressources/Grids/Data/"
 			+ files[cursor * ROW_CHOICE * COL_CHOICE
 			      + ROW_CHOICE * off_col + off_row]
 			+ ".xml");
+
+	// loading if possible
+	const std::vector<std::string> load_available = all_file_in_dir("ressources/Grids/Saves");
+	if(std::find(load_available.begin(), load_available.end(),
+		     files[cursor * ROW_CHOICE * COL_CHOICE
+			+ ROW_CHOICE * off_col + off_row]
+		     .substr(0,
+			     files[cursor * ROW_CHOICE * COL_CHOICE
+				      + ROW_CHOICE * off_col + off_row]
+			     .size() - 4)
+		     + ".dat")
+	   != load_available.end()){
+	    grid_.load(grid_.getId());
+	}
 	
 	game_mode();
 
@@ -795,13 +863,13 @@ void Window::choice_mode(){
 
     cursor = 0;
 }
-
+/*
 void Window::load_grid(const std::string& path){
     grid_ = Picross(path);
 
     elements_[GAME].clear();
 }
-
+*/
 void Window::click(GLFWwindow * win, int button, int action, int mods){
     static unsigned last_click = 0;
     int states[GLFW_MOUSE_BUTTON_LAST + 1];
@@ -849,6 +917,18 @@ void Window::keyEvent(GLFWwindow * window, int key, int action){
 		state_ = QUIT;
 		break;
 	    case GAME:
+		if(!finished){ // saving state if unfinished
+		    grid_.save();
+		    LOG_DEBUG(grid_.getId());
+		}else{ // removing save file if finished
+		    const std::vector<std::string> saves = all_file_in_dir("ressources/Grids/Saves");
+
+		    if(std::find(saves.begin(), saves.end(),
+				 grid_.getId() + ".dat")
+		       != saves.end()){
+			std::remove(("ressources/Grids/Saves/" + grid_.getId() + ".dat").c_str());
+		    }
+		}
 	    case CHOICE:
 		state_ = MENU;
 		break;
