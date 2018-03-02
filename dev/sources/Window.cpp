@@ -881,7 +881,7 @@ void Window::choice_mode(){
     // initializing attributes
     cursor = 0;
     ids_[CHOICE] = 5;
-    elements_[CHOICE].resize(files.size() * 2 + 5);
+    elements_[CHOICE].resize(files.size() * 6 + 5);
     std::generate(elements_[CHOICE].begin(), elements_[CHOICE].end(),
 		  [](){return nullptr;});
 
@@ -1024,9 +1024,10 @@ void Window::choice_mode(){
     // creating each "pages"
     double size_col = 1.0 / COL_CHOICE;
     double size_row = 0.7 / ROW_CHOICE;
-    while((ids_[CHOICE] - 5) / 2 < files.size()){
-	for(int i = 0; i < ROW_CHOICE && (ids_[CHOICE] - 5) / 2 < files.size(); ++i){
-	    for(int j = 0; j < COL_CHOICE && (ids_[CHOICE] - 5) / 2 < files.size(); ++j){
+    int succeeded = 0;
+    while((ids_[CHOICE] - 5 - 4 * succeeded) / 2 < files.size()){
+	for(int i = 0; i < ROW_CHOICE && (ids_[CHOICE] - 5 - 4 * succeeded) / 2 < files.size(); ++i){
+	    for(int j = 0; j < COL_CHOICE && (ids_[CHOICE] - 5 - 4 * succeeded) / 2 < files.size(); ++j){
 		// adding block
 		elements_[CHOICE][ids_[CHOICE]] = new Element(&pattern_no_img_);
 		elements_[CHOICE][ids_[CHOICE]]->setValue(0, 0.5); // plan
@@ -1039,6 +1040,28 @@ void Window::choice_mode(){
 		elements_[CHOICE][ids_[CHOICE]]->setValue(3, 0.8, 0.8, 0.8); // color
 		elements_[CHOICE][ids_[CHOICE]]->setOnClick(button);
 		++ids_[CHOICE];
+
+		// adding green blocks if the grid was already finished
+		const std::vector<std::string> finished = all_file_in_dir("ressources/Grids/Finished",".xml");
+		if(std::find(finished.begin(), finished.end(),
+			     files[(ids_[CHOICE] - 5 - 4 * succeeded) / 2])
+		   != finished.end()){
+		    ++succeeded;
+		    for(int x = 0; x < 2; ++x){
+			for(int y = 0; y < 2; ++y){
+			    elements_[CHOICE][ids_[CHOICE]] = new Element(&pattern_no_img_);
+			    elements_[CHOICE][ids_[CHOICE]]->setValue(0, 0.5); // plan
+			    elements_[CHOICE][ids_[CHOICE]]->setValue(1,
+								      size_col * (j + 0.1 + 0.01 * (x ? -1 : 1) + x * 0.69) + cursor,
+								      0.8 - size_row * (i + 0.1 + 1 - 0.01 * (y ? -1 : 1) - y * 0.69)); // offset
+			    elements_[CHOICE][ids_[CHOICE]]->setValue(2, 
+								      size_col * 0.1,
+								      size_row * 0.1); // size
+			    elements_[CHOICE][ids_[CHOICE]]->setValue(3, 0, 1, 0); // color
+			    ++ids_[CHOICE];
+			}
+		    }
+		}
 		
 		// adding text
 		elements_[CHOICE][ids_[CHOICE]] = new Element(&pattern_img_);
@@ -1050,8 +1073,8 @@ void Window::choice_mode(){
 							  size_col * 0.7,
 							  size_row * 0.7); // size
 
-		LOG_DEBUG(files[(ids_[CHOICE] - 5) / 2]);
-		surface = TTF_RenderText_Blended(font_, files[(ids_[CHOICE] - 5) / 2].c_str(), {0, 0, 0, 255});
+		LOG_DEBUG(files[(ids_[CHOICE] - 5 - 4 * succeeded) / 2]);
+		surface = TTF_RenderText_Blended(font_, files[(ids_[CHOICE] - 5 - 4 * succeeded) / 2].c_str(), {0, 0, 0, 255});
 		if(!surface){
 		    throw Errors::FontToSurface();
 		}
