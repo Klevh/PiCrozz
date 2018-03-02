@@ -13,7 +13,9 @@ InfoCase::InfoCase(const InfoCase & i) : type(i.getType()), color(i.getColor())
 }
 
 InfoCase& InfoCase::operator=(const InfoCase& i) {
-	return *this;
+    type = i.type;
+    color = i.color;
+    return *this;
 }
 
 //getters

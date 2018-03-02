@@ -265,7 +265,7 @@ void Picross::setGrilleIJ(int i, int j, int type, int color) {
     grille[i][j].setType(type);
     grille[i][j].setColor(color);
 
-    //queue.addOp(t);
+    queue.addOp(t);
 }
 
 void Picross::setGrilleIJ(int i, int j, char c) {

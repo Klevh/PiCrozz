@@ -321,8 +321,10 @@ void Window::game_mode(){
 		// -- adding new one
 		GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
 		GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
+		LOG_DEBUG("Type : " << std::get<2>(info).getType());
 		switch(std::get<2>(info).getType()){
 		case 0:
+		    LOG_DEBUG("Adding a cross");
 		    // adding a cross
 		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 		    ++ids_[GAME];
@@ -344,6 +346,7 @@ void Window::game_mode(){
 		    }
 		    break;
 		case 1:
+		    LOG_DEBUG("Adding a block");
 		    // adding a block
 		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 		    ++ids_[GAME];
@@ -437,6 +440,7 @@ void Window::game_mode(){
 		GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
 		switch(std::get<2>(info).getType()){
 		case 0:
+		    LOG_DEBUG("Adding a cross");
 		    // adding a cross
 		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 		    ++ids_[GAME];
@@ -458,6 +462,7 @@ void Window::game_mode(){
 		    }
 		    break;
 		case 1:
+		    LOG_DEBUG("Adding a block");
 		    // adding a block
 		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 		    ++ids_[GAME];
