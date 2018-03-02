@@ -6,6 +6,8 @@
 
 #include "InfoCase.hpp"
 
+#include "Debug.hpp"
+
 class OperationsQueue {
     int realLast;
     int currentLast;
@@ -27,6 +29,9 @@ public:
     void setCurrentLast(int);
     void setQueueI (int, const std::tuple<int,int,InfoCase,InfoCase> &);
 
+    // operators
+    OperationsQueue& operator=(const OperationsQueue& oq);
+
     //tests
     bool canWeForward() const;
     bool canWePrevious() const;
@@ -37,7 +42,9 @@ public:
     void addOp (const std::tuple<int,int,InfoCase,InfoCase> &);
     void resize(int);
 
+    #if defined(DEBUG) && !defined(NDEBUG)
     void display() const;
+    #endif
 };
 
 

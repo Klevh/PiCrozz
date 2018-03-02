@@ -11,6 +11,8 @@
 #include "Colors.hpp"
 #include "OperationsQueue.hpp"
 
+#include "Debug.hpp"
+
 
 class Picross {
     //mettre le nom du fichier (sans le ".xml")   //A FAIRE
@@ -196,8 +198,9 @@ public:
     int checkFinishedClassicGrid();
 
     //display
-     void displayClassic() const;
-
+    #if defined(DEBUG) && !defined(NDEBUG)
+    void displayClassic() const;
+    #endif
 };
 
 

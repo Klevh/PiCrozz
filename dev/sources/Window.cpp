@@ -35,17 +35,17 @@ static void key_callback(GLFWwindow* win, int key, int scancode, int action, int
 	    window->keyEvent(win,key,action);
     }
 }
-static std::vector<std::string> all_file_in_dir(const std::string& path){
+static std::vector<std::string> all_file_in_dir(const std::string& path, const std::string& format){
     std::vector<std::string> res;
     boost::filesystem::path p(path);
     boost::filesystem::directory_iterator end;
     
     for(boost::filesystem::directory_iterator start(p); start != end; ++start){
 	std::string s = start->path().leaf().string();
-	size_t id = s.find(".xml");
+	size_t id = s.find(format);
 	
-	if(id != std::string::npos && id == s.size() - 4){
-	    res.push_back(s.substr(0, s.size() - 4));
+	if(id != std::string::npos && id == s.size() - format.size()){
+	    res.push_back(s.substr(0, s.size() - format.size()));
 	}
     }
 
@@ -242,7 +242,6 @@ void Window::game_mode(){
 	    })).size();
 	
 	// emptying the current game placement
-	elements_[GAME].clear();
 	elements_[GAME].resize(grid_.getGrille().size() + 1 // number of horizontal lines
 			       + grid_.getGrille()[0].size() + 1 // number of vertical lines
 			       + 1 // background
@@ -407,12 +406,15 @@ void Window::game_mode(){
 	ids_[GAME] += 1 + grid_.getGrille().size();
 
 	// placing already existing elements
+	LOG_DEBUG("Loading old grid");
 	for(unsigned x = 0; x < grid_.getGrille().size(); ++x){
 	    GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
 	    GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
-	    for(unsigned y = 0; y < grid_.getGrille()[y].size(); ++y){
-		switch(grid_.getGrille()[x][y].getType()){
+	    LOG_DEBUG("Loading column " << x << "\n\t" << grid_.getGrille()[x].size());
+	    for(unsigned y = 0; y < grid_.getGrille()[x].size(); ++y){
+		switch(grid_.getGrille()[y][x].getType()){
 		case 0:
+		    LOG_DEBUG("Adding a cross");
 		    // adding a cross
 		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 		    ++ids_[GAME];
@@ -434,6 +436,7 @@ void Window::game_mode(){
 		    }
 		    break;
 		case 1:
+		    LOG_DEBUG("Adding a block");
 		    // adding a block
 		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 		    ++ids_[GAME];
@@ -450,9 +453,12 @@ void Window::game_mode(){
 		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
 		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
 		    break;
+		default:
+		    LOG_DEBUG("Adding nothing");
 		}
 	    }
 	}
+	LOG_DEBUG("End of loading");
 
 	// interaction of the white background
 	elements_[GAME][0]->setOnClick(
@@ -527,7 +533,7 @@ void Window::game_mode(){
 			    LOG_DEBUG("1");
 
 			    delete ihm_grid_[x][y].e[0];
-			    elements_[GAME][ids_[GAME] - 1] = nullptr;
+			    elements_[GAME][ihm_grid_[x][y].id[0]] = nullptr;
 			    --ids_[GAME];
 			    // setting the removed block
 			    ihm_grid_[x][y].e[0] = nullptr;
@@ -555,7 +561,7 @@ void Window::game_mode(){
 				}
 			    
 				delete ihm_grid_[x][y].e[j];
-				elements_[GAME][ids_[GAME] - 1] = nullptr;
+				elements_[GAME][ihm_grid_[x][y].id[j]] = nullptr;
 				--ids_[GAME];
 				// setting the removed block
 				ihm_grid_[x][y].e[j] = nullptr;
@@ -669,11 +675,10 @@ void Window::menu_mode(){
 
 void Window::choice_mode(){
     SDL_Surface * surface;
-    std::vector<std::string> files = all_file_in_dir("ressources/Grids/Data");
+    std::vector<std::string> files = all_file_in_dir("ressources/Grids/Data",".xml");
 
     for(int i = 0; i < ids_[CHOICE]; ++i){
 	delete elements_[CHOICE][i];
-	elements_[CHOICE][i] = nullptr;
     }
     
     // initializing attributes
@@ -752,19 +757,21 @@ void Window::choice_mode(){
 			+ files[cursor * ROW_CHOICE * COL_CHOICE
 			      + ROW_CHOICE * off_col + off_row]
 			+ ".xml");
+	LOG_DEBUG("Grid copied");
 
 	// loading if possible
-	const std::vector<std::string> load_available = all_file_in_dir("ressources/Grids/Saves");
+	const std::vector<std::string> load_available = all_file_in_dir("ressources/Grids/Saves/",".dat");
+	LOG_DEBUG("Save files loaded : " << load_available.size());
+	for(std::string s : load_available){
+	    LOG_DEBUG("\t\t" << s);
+	}
 	if(std::find(load_available.begin(), load_available.end(),
 		     files[cursor * ROW_CHOICE * COL_CHOICE
-			+ ROW_CHOICE * off_col + off_row]
-		     .substr(0,
-			     files[cursor * ROW_CHOICE * COL_CHOICE
-				      + ROW_CHOICE * off_col + off_row]
-			     .size() - 4)
-		     + ".dat")
+			+ ROW_CHOICE * off_col + off_row])
 	   != load_available.end()){
+	    LOG_DEBUG("\tLoading old grid");
 	    grid_.load(grid_.getId());
+	    LOG_DEBUG("\tEnd of loading, generating game_mode");
 	}
 	
 	game_mode();
@@ -921,7 +928,7 @@ void Window::keyEvent(GLFWwindow * window, int key, int action){
 		    grid_.save();
 		    LOG_DEBUG(grid_.getId());
 		}else{ // removing save file if finished
-		    const std::vector<std::string> saves = all_file_in_dir("ressources/Grids/Saves");
+		    const std::vector<std::string> saves = all_file_in_dir("ressources/Grids/Saves",".dat");
 
 		    if(std::find(saves.begin(), saves.end(),
 				 grid_.getId() + ".dat")
