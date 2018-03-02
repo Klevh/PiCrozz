@@ -195,8 +195,9 @@ public:
     int checkFinishedClassicGrid();
 
     //display
-     void displayClassic() const;
-
+    #if defined(DEBUG) && !defined(NDEBUG)
+    void displayClassic() const;
+    #endif
 };
 
 

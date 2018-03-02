@@ -1,13 +1,10 @@
 #include "Picross.hpp"
 
 #include <fstream>
-#include <iostream>
 
 using std::vector;
 using std::string;
 using std::tuple;
-using std::cout;
-using std::endl;
 
 #ifdef XMLCheckResult
 #undef XMLCheckResult
@@ -170,7 +167,7 @@ Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor())
 
 Picross& Picross::operator=(const Picross& p)
 {
-
+    
     grille.resize(nbLignes);
     for (int i = 0; i<nbLignes; i++) {
         grille[i].resize(nbColonnes);
@@ -496,7 +493,7 @@ void Picross::save() const {
     chemin += id;
     chemin += ".dat";
 
-    cout << "chemin:  " << chemin << endl;
+    LOG_DEBUG("chemin:  " << chemin);
 
     try
     {   
@@ -548,14 +545,14 @@ void Picross::save() const {
         //save of indicationsLignes
         for (int i = 0; i<nbLignes; i++) {
             tempInt = indicationsLignes[i].size();
-            cout<<"SAVEtempINT : " <<tempInt;
+            LOG_DEBUG("SAVEtempINT : " <<tempInt);
             file.write ((char*) &tempInt, sizeof (tempInt));
             for (unsigned j = 0; j<indicationsLignes[i].size(); j++) {
                 tempInt = indicationsLignes[i][j].getType();
-                cout<<"  type : " <<tempInt;
+                LOG_DEBUG("  type : " <<tempInt);
                 file.write ((char*) &tempInt, sizeof (tempInt));
                 tempInt = indicationsLignes[i][j].getColor();
-                cout<<"  color : " <<tempInt<<endl;
+                LOG_DEBUG("  color : " <<tempInt);
                 file.write ((char*) &tempInt, sizeof (tempInt));
             }
         }
@@ -604,11 +601,11 @@ void Picross::save() const {
     }
     catch (const char *exception)
     {
-        std::cerr << "\n*** " << exception << " ***\n";
+        LOG_DEBUG("*** " << exception << " ***");
     }
     catch (...)
     {
-        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+        LOG_DEBUG("*** Une erreur s'est produite ! ***");
     }
 }
 
@@ -628,7 +625,7 @@ void Picross::load(const string& idGrid) {
         std::ifstream file(chemin.c_str(), std::ios::binary);
         if (!file)
         {
-            std::cerr << "\a\n\nImpossible de lire le fichier de sauvegarde\n\n";
+            LOG_DEBUG("Impossible de lire le fichier de sauvegarde");
             return;
         }
 
@@ -680,7 +677,7 @@ void Picross::load(const string& idGrid) {
         for (int i = 0; i<nbLignes; i++) {
             file.read ((char*) &tempInt, sizeof (tempInt));
             indicationsLignes[i].resize(tempInt);
-            cout<<"tempINT : " <<tempInt << "\n";
+            LOG_DEBUG("tempINT : " <<tempInt);
             for (int j = 0; j<tempInt; j++) {
                 file.read ((char*) &tempInt2, sizeof (tempInt2));
                 file.read ((char*) &tempInt3, sizeof (tempInt3));
@@ -732,11 +729,11 @@ void Picross::load(const string& idGrid) {
     }
     catch (const char *exception)
     {
-        std::cerr << "\n*** " << exception << " ***\n";
+        LOG_DEBUG("*** " << exception << " ***");
     }
     catch (...)
     {
-        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+        LOG_DEBUG("*** Une erreur s'est produite ! ***");
     }
 }
 
@@ -839,7 +836,7 @@ int Picross::checkFinishedClassicGrid() {
     return res;
 }
 
-
+#if defined(DEBUG) && !defined(NDEBUG)
 void Picross::displayClassic() const {
 
     //int margin = 10;
@@ -913,7 +910,7 @@ void Picross::displayClassic() const {
     }
 
 }
-
+#endif
 
 
 
@@ -923,14 +920,14 @@ std::ostream& operator<< (std::ostream &flux, Picross & p)
     try
     {
         flux << "\nid : " << p.getId()
-        << "\ntitle : " << p.getTitle()
-        << "\nauthor : " << p.getAuthor()
-        << "\ncopyright : " << p.getCopyright()
-        << "\ndescription : " << p.getDescription()
-        << "\nnbLignes : " << p.getNbLignes()
-        << "\nnbColonnes : " << p.getNbColonnes()
-        <<"\n\nCOLORS" << p.getColors()
-        << "\n\nINDICATIONS LIGNES\n";
+	     << "\ntitle : " << p.getTitle()
+	     << "\nauthor : " << p.getAuthor()
+	     << "\ncopyright : " << p.getCopyright()
+	     << "\ndescription : " << p.getDescription()
+	     << "\nnbLignes : " << p.getNbLignes()
+	     << "\nnbColonnes : " << p.getNbColonnes()
+	     <<"\n\nCOLORS" << p.getColors()
+	     << "\n\nINDICATIONS LIGNES\n";
 
         for (int i = 0; i<p.getNbLignes(); i++) {
             flux<<"|";
@@ -947,7 +944,7 @@ std::ostream& operator<< (std::ostream &flux, Picross & p)
             for (unsigned j = 0; j<p.getIndicationsColonnes()[i].size(); j++) {
                 flux<< p.getIndicationsColonnes()[i][j].getType()<<"|";
             }
-            cout<<"\n";
+            flux<<"\n";
         }
 
         flux<< "\n\nGrille\n";
@@ -965,7 +962,7 @@ std::ostream& operator<< (std::ostream &flux, Picross & p)
     }
     catch (...)
     {
-        std::cerr << "\n*** Une erreur s'est produite ! ***\n";
+        LOG_DEBUG("*** Une erreur s'est produite ! ***";
     }
     return flux;
 }
