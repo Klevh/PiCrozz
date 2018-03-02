@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <cstdio>
+#include <tuple>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -272,55 +273,230 @@ void Window::game_mode(){
 
 	// backward arrow
 	auto backward = [&](...){
-	    if(!finished){
+	    if(!finished && grid_.canWePrevious()){
 		LOG_DEBUG("Backward");
-		grid_.previousOp();
+
+		std::tuple<int, int, InfoCase> info = grid_.previousOp();
+
+		if(!grid_.canWePrevious()){
+		    arrows[0]->setValue(3, 0.4, 0.4, 0.4);
+		    arrows[1]->setValue(3, 0.4, 0.4, 0.4);
+		}
+
+		if(grid_.canWeForward()){
+		    arrows[2]->setValue(3, 0.8, 0.8, 0.8);
+		    arrows[3]->setValue(3, 0.8, 0.8, 0.8);
+		}
+
+		// updating grid
+		// -- removing old InfoCase
+		int x = std::get<1>(info);
+		int y = std::get<0>(info);
+		LOG_DEBUG("Removing element " << x << " - " << y);
+		for(int j = 1; j >= 0; --j){
+		    if(ihm_grid_[x][y].e[j]){
+			for(int i = ihm_grid_[x][y].id[j]; i < ids_[GAME] - 1; ++i){
+			    elements_[GAME][i] = elements_[GAME][i + 1];
+			}
+			
+			delete ihm_grid_[x][y].e[j];
+			elements_[GAME][ihm_grid_[x][y].id[j]] = nullptr;
+			--ids_[GAME];
+			// setting the removed block
+			ihm_grid_[x][y].e[j] = nullptr;
+			
+			// setting new id for other blocks
+			for(int i = 0; i < ihm_grid_.size(); ++i){
+			    for(int l = 0; l < ihm_grid_[i].size(); ++l){
+				for(int k = 0; k < 2; ++k){
+				    if(ihm_grid_[i][l].e[k] && ihm_grid_[i][l].id[k] >= ihm_grid_[x][y].id[j]){
+					--ihm_grid_[i][l].id[k];
+				    }
+				}
+			    }
+			}
+		    }
+		}
+		
+		// -- adding new one
+		GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
+		GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
+		switch(std::get<2>(info).getType()){
+		case 0:
+		    // adding a cross
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+		        
+		    ihm_grid_[x][y].id[0] = ids_[GAME] - 2;
+		    ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+		    ihm_grid_[x][y].id[1] = ids_[GAME] - 1;
+		    ihm_grid_[x][y].e[1] = elements_[GAME][ihm_grid_[x][y].id[1]];
+		    ihm_grid_[x][y].state = 1;
+
+		    for(int i = 0; i < 2; ++i){
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(0,0.5); // set plan
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(1,0.201 + x * square_size,0.678 + grid_.getGrille().size() * 0.005 - y * square_size); // set offset
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(2,block_size,square_size / 8); // set size
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(3,0,0,0); // set color
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(4,-45 + 90 * i); // set rotation
+		    }
+		    break;
+		case 1:
+		    // adding a block
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+			
+		    ihm_grid_[x][y].id[0] = ids_[GAME] - 1;
+		    ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+		    ihm_grid_[x][y].state = 0;
+	        	
+		    LOG_DEBUG(ihm_grid_[x][y].id[0] << " " << ids_[GAME] - 1);
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(0, 0.5); // set plan
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(1,
+								     0.204 + 0.0003 * (10 - (int)grid_.getGrille()[0].size()) + x * square_size,
+								     0.805 + 0.0001 * (10 - (int)grid_.getGrille().size()) - (y + 1) * square_size); // set offset
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
+		    break;
+		}
 	    }
 	    
 	    return true;
 	};
-	
+
+	double prev = (grid_.canWePrevious() + 1) * 0.4;
 	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	arrows[0] = elements_[GAME][ids_[GAME]];
 	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
 	elements_[GAME][ids_[GAME]]->setValue(1, 0.02, 0.93); // set offset
 	elements_[GAME][ids_[GAME]]->setValue(2, 0.03, 0.03); // set size
-	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setValue(3, prev, prev, prev); // set color
 	elements_[GAME][ids_[GAME]]->setValue(4, 40); // rotation
 	elements_[GAME][ids_[GAME]]->setOnClick(backward);
 	++ids_[GAME];
 	
 	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	arrows[1] = elements_[GAME][ids_[GAME]];
 	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
 	elements_[GAME][ids_[GAME]]->setValue(1, 0.035, 0.935); // set offset
 	elements_[GAME][ids_[GAME]]->setValue(2, 0.04, 0.02); // set size
-	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setValue(3, prev, prev, prev); // set color
 	elements_[GAME][ids_[GAME]]->setOnClick(backward);
 	++ids_[GAME];
 	
 	// forward arrow
 	auto forward = [&](...){
-	    if(!finished){
+	    if(!finished && grid_.canWeForward()){
 		LOG_DEBUG("Forward");
-		grid_.forwardOp();
+		std::tuple<int, int, InfoCase> info = grid_.forwardOp();
+
+		if(!grid_.canWeForward()){
+		    arrows[2]->setValue(3, 0.4, 0.4, 0.4);
+		    arrows[3]->setValue(3, 0.4, 0.4, 0.4);
+		}
+
+		if(grid_.canWePrevious()){
+		    arrows[0]->setValue(3, 0.8, 0.8, 0.8);
+		    arrows[1]->setValue(3, 0.8, 0.8, 0.8);
+		}
+
+		// updating grid
+		// -- removing old InfoCase
+		int x = std::get<1>(info);
+		int y = std::get<0>(info);
+		LOG_DEBUG("Removing element " << x << " - " << y);
+		for(int j = 1; j >= 0; --j){
+		    if(ihm_grid_[x][y].e[j]){
+			for(int i = ihm_grid_[x][y].id[j]; i < ids_[GAME] - 1; ++i){
+			    elements_[GAME][i] = elements_[GAME][i + 1];
+			}
+			
+			delete ihm_grid_[x][y].e[j];
+			elements_[GAME][ihm_grid_[x][y].id[j]] = nullptr;
+			--ids_[GAME];
+			// setting the removed block
+			ihm_grid_[x][y].e[j] = nullptr;
+			
+			// setting new id for other blocks
+			for(int i = 0; i < ihm_grid_.size(); ++i){
+			    for(int l = 0; l < ihm_grid_[i].size(); ++l){
+				for(int k = 0; k < 2; ++k){
+				    if(ihm_grid_[i][l].e[k] && ihm_grid_[i][l].id[k] >= ihm_grid_[x][y].id[j]){
+					--ihm_grid_[i][l].id[k];
+				    }
+				}
+			    }
+			}
+		    }
+		}
+		
+		// -- adding new one
+		GLfloat square_size = 0.08 / (1.0 * grid_.getGrille().size() / 10);
+		GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
+		switch(std::get<2>(info).getType()){
+		case 0:
+		    // adding a cross
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+		        
+		    ihm_grid_[x][y].id[0] = ids_[GAME] - 2;
+		    ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+		    ihm_grid_[x][y].id[1] = ids_[GAME] - 1;
+		    ihm_grid_[x][y].e[1] = elements_[GAME][ihm_grid_[x][y].id[1]];
+		    ihm_grid_[x][y].state = 1;
+
+		    for(int i = 0; i < 2; ++i){
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(0,0.5); // set plan
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(1,0.201 + x * square_size,0.678 + grid_.getGrille().size() * 0.005 - y * square_size); // set offset
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(2,block_size,square_size / 8); // set size
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(3,0,0,0); // set color
+			elements_[GAME][ihm_grid_[x][y].id[i]]->setValue(4,-45 + 90 * i); // set rotation
+		    }
+		    break;
+		case 1:
+		    // adding a block
+		    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+		    ++ids_[GAME];
+			
+		    ihm_grid_[x][y].id[0] = ids_[GAME] - 1;
+		    ihm_grid_[x][y].e[0] = elements_[GAME][ihm_grid_[x][y].id[0]];
+		    ihm_grid_[x][y].state = 0;
+	        	
+		    LOG_DEBUG(ihm_grid_[x][y].id[0] << " " << ids_[GAME] - 1);
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(0, 0.5); // set plan
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(1,
+								     0.204 + 0.0003 * (10 - (int)grid_.getGrille()[0].size()) + x * square_size,
+								     0.805 + 0.0001 * (10 - (int)grid_.getGrille().size()) - (y + 1) * square_size); // set offset
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(2, block_size, block_size); // set size
+		    elements_[GAME][ihm_grid_[x][y].id[0]]->setValue(3, 0, 0, 0); // set color
+		    break;
+		}
 	    }
 	    
 	    return true;
 	};
 	
+	double forw = (grid_.canWeForward() + 1) * 0.4;
 	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	arrows[2] = elements_[GAME][ids_[GAME]];
 	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
 	elements_[GAME][ids_[GAME]]->setValue(1, 0.15, 0.93); // set offset
 	elements_[GAME][ids_[GAME]]->setValue(2, 0.03, 0.03); // set size
-	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setValue(3, forw, forw, forw); // set color
 	elements_[GAME][ids_[GAME]]->setValue(4, 40); // rotation
 	elements_[GAME][ids_[GAME]]->setOnClick(forward);
 	++ids_[GAME];
 	
 	elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
+	arrows[3] = elements_[GAME][ids_[GAME]];
 	elements_[GAME][ids_[GAME]]->setValue(0, 0.5); // set plan
 	elements_[GAME][ids_[GAME]]->setValue(1, 0.13, 0.935); // set offset
 	elements_[GAME][ids_[GAME]]->setValue(2, 0.04, 0.02); // set size
-	elements_[GAME][ids_[GAME]]->setValue(3, 0.8, 0.8, 0.8); // set color
+	elements_[GAME][ids_[GAME]]->setValue(3, forw, forw, forw); // set color
 	elements_[GAME][ids_[GAME]]->setOnClick(forward);
 	++ids_[GAME];
 
@@ -481,6 +657,10 @@ void Window::game_mode(){
 			GLfloat block_size = 0.07 / (1.0 * grid_.getGrille().size() / 10);
 
 			if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_RIGHT] != GLFW_PRESS){
+			    arrows[0]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[1]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[2]->setValue(3, 0.4, 0.4, 0.4);
+			    arrows[3]->setValue(3, 0.4, 0.4, 0.4);
 			    // adding a block
 			    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 			    ++ids_[GAME];
@@ -500,6 +680,10 @@ void Window::game_mode(){
 			    // setting the grid_
 			    grid_.setGrilleIJ(y,x,1,BLACK);
 			}else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && buttons[GLFW_MOUSE_BUTTON_LEFT] != GLFW_PRESS){
+			    arrows[0]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[1]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[2]->setValue(3, 0.4, 0.4, 0.4);
+			    arrows[3]->setValue(3, 0.4, 0.4, 0.4);
 			    // adding a cross
 			    elements_[GAME][ids_[GAME]] = new Element(&pattern_no_img_);
 			    ++ids_[GAME];
@@ -525,6 +709,10 @@ void Window::game_mode(){
 			}
 		    }else{
 			if(buttons[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS && !ihm_grid_[x][y].state){
+			    arrows[0]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[1]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[2]->setValue(3, 0.4, 0.4, 0.4);
+			    arrows[3]->setValue(3, 0.4, 0.4, 0.4);
 			    LOG_DEBUG("id in v : " << ihm_grid_[x][y].id[0]);
 			    // removing a block
 			    for(int i = ihm_grid_[x][y].id[0]; i < ids_[GAME] - 1; ++i){
@@ -554,6 +742,10 @@ void Window::game_mode(){
 			    // setting the grid_
 			    grid_.setGrilleIJ(y,x,-1,WHITE);
 			}else if(buttons[GLFW_MOUSE_BUTTON_RIGHT] == GLFW_PRESS && ihm_grid_[x][y].state == 1){
+			    arrows[0]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[1]->setValue(3, 0.8, 0.8, 0.8);
+			    arrows[2]->setValue(3, 0.4, 0.4, 0.4);
+			    arrows[3]->setValue(3, 0.4, 0.4, 0.4);
 			    // removing a cross
 			    for(int j = 1; j >= 0; --j){
 				for(int i = ihm_grid_[x][y].id[j]; i < ids_[GAME] - 1; ++i){

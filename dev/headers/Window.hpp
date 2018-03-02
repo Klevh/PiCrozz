@@ -68,6 +68,8 @@ class Window{
     ///< cursor in choice mode
     bool finished;
     ///< tells whether the grid is finished or not
+    Element * arrows[4];
+    ///< arrows to go forward / backward in game_mode [0, 1] for backward, [2, 3] for forward
 
 public:
 // public values available for changing "page"
