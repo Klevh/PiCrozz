@@ -1,12 +1,10 @@
 #include "OperationsQueue.hpp"
 
-#include <iostream>
+#include <algorithm>
 
 using std::vector;
 using std::string;
 using std::tuple;
-using std::cout;
-using std::endl;
 
 
     //class OperationsQueue
@@ -23,6 +21,17 @@ const std::vector<std::tuple<int,int,InfoCase,InfoCase>>& OperationsQueue::getQu
 void OperationsQueue::setRealLast(int last) {realLast = last;}
 void OperationsQueue::setCurrentLast(int last) {currentLast = last;}
 void OperationsQueue::setQueueI (int i, const std::tuple<int,int,InfoCase,InfoCase> & t) {queue[i]=t;}
+
+// operators
+OperationsQueue& operator=(const OperationsQueue& oq){
+    queue.resize(oq.queue.size());
+    std::copy(oq.queue.begin(), oq.queue.end(), queue.begin());
+
+    realLast = oq.realLast;
+    currentLast = oq.currentLast;
+
+    return *this;
+}
 
 //tests
 bool OperationsQueue::canWeForward () const {return currentLast < realLast;}
@@ -61,6 +70,9 @@ void OperationsQueue::addOp (const std::tuple<int,int,InfoCase,InfoCase> & t) {
 
 void OperationsQueue::resize(int i) {queue.resize(i);}
 
+#if defined(DEBUG) && !defined(NDEBUG)
+using std::cout;
+using std::endl;
 void OperationsQueue::display() const {
     tuple<int,int,InfoCase,InfoCase> t;
     cout<< "Queue size : " << queue.size() << "     realLast: " << realLast <<"     currentLast: " << currentLast << endl   ;
@@ -73,3 +85,4 @@ void OperationsQueue::display() const {
     }
 
 }
+#endif

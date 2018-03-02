@@ -19,7 +19,7 @@ extern "C"{
 #include "Errors.hpp"
 #include "Element.hpp"
 #include "Pattern.hpp"
-#include "grille.hpp"
+#include "Picross.hpp"
 
 class Window{
     // static attributes

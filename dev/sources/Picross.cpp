@@ -1,26 +1,14 @@
 #include "Picross.hpp"
 
+#include "Debug.hpp"
+
 #include <fstream>
+#include <iostream>
 
 using std::vector;
 using std::string;
 using std::tuple;
 
-#ifdef XMLCheckResult
-#undef XMLCheckResult
-#endif
-
-#if defined(DEBUG) && !defined(NDEBUG)
-#include <iostream>
-#define XMLCheckResult(a_eResult)					\
-    if ((a_eResult) != tinyxml2::XML_SUCCESS) {				\
-	std::cout << "Error: " << (a_eResult) << std::endl;		\
-    }while(0)
-#define SHOW_LOG(a) std::cout << (a) << std::endl
-#else
-#define XMLCheckResult(a)
-#define SHOW_LOG(a)
-#endif
 
 //xml
 
@@ -123,16 +111,16 @@ Picross::Picross(const string & path) {
 
      pElement = pRoot->FirstChildElement("title");
      title = getXMLText (pElement,"title");
-     SHOW_LOG(title);
+     LOG_DEBUG(title);
 
      pElement = pRoot->FirstChildElement("author");
      author = getXMLText (pElement,"author");
-     SHOW_LOG(author);
+     LOG_DEBUG(author);
 
      
      pElement = pRoot->FirstChildElement("copyright");
      copyright = getXMLText (pElement,"copyright");
-     SHOW_LOG(copyright);
+     LOG_DEBUG(copyright);
 
      pElement = pRoot->FirstChildElement("id");
      id = getXMLText (pElement,"id");
@@ -141,25 +129,21 @@ Picross::Picross(const string & path) {
      while (id[i]>47 && id[i]<58)
         ++i;
      id.erase(i);
-     SHOW_LOG(id);
+     LOG_DEBUG("id : " << id);
 
      pElement = pRoot->FirstChildElement("description");
      description = getXMLText (pElement,"description");
-     SHOW_LOG(description);
+     LOG_DEBUG(description);
      
      pElement = pRoot->FirstChildElement("color");
      getXMLColors(pElement);
 
      pElement = pRoot->FirstChildElement("clues");
      getXMLGrid(pElement);
-
 }
 
 
-Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor()),
-      copyright(p.getCopyright()), description(p.getDescription()),
-      nbLignes(p.getNbLignes()), nbColonnes(p.getNbColonnes()), 
-      colors(p.getColors())
+Picross::Picross(const Picross& p)
 {
     *this = p;
 }
@@ -167,19 +151,28 @@ Picross::Picross(const Picross & p) : title(p.getTitle()), author(p.getAuthor())
 
 Picross& Picross::operator=(const Picross& p)
 {
-    
+    id = p.getId();
+    title = p.getTitle();
+    author = p.getAuthor();
+    copyright = p.getCopyright();
+    description = p.getDescription();
+    nbLignes = p.grille.size();
+    nbColonnes = p.grille[0].size();
+    colors = p.getColors();
+    LOG_DEBUG("copy : id : " << id);
+
     grille.resize(nbLignes);
+
     for (int i = 0; i<nbLignes; i++) {
         grille[i].resize(nbColonnes);
         for(int j = 0; j<nbColonnes; j++) {
-
             initiateGrilleIJ(i,j,p.getGrille()[i][j].getType(),p.getGrille()[i][j].getColor());
         }
     }
      
-     //cout<< "lignes" <<endl;
-     indicationsLignes.resize(nbLignes);
-     for(int i = 0; i<nbLignes; i++) {
+    LOG_DEBUG("Lignes");
+    indicationsLignes.resize(p.getIndicationsLignes().size());
+    for(int i = 0; i<nbLignes; i++) {
         unsigned len = p.getIndicationsLignes()[i].size();
         indicationsLignes[i].resize(len);
         for(unsigned j = 0; j<len; j++) {
@@ -187,17 +180,20 @@ Picross& Picross::operator=(const Picross& p)
             setIndicationsLignesIJ(i,j,p.getIndicationsLignes()[i][j].getType(),p.getIndicationsLignes()[i][j].getColor());
         }
     }
-     
-     //cout<< "Colonnes" <<endl;
-     indicationsColonnes.resize(nbColonnes);
-     for(int i = 0; i<nbColonnes; i++) {
+
+    LOG_DEBUG("Colonnes");
+    indicationsColonnes.resize(p.getIndicationsColonnes().size());
+    for(int i = 0; i<nbColonnes; i++) {
         unsigned len = p.getIndicationsColonnes()[i].size();
         indicationsColonnes[i].resize(len);
         for(unsigned j = 0; j<len; j++) {
 
             setIndicationsColonnesIJ(i,j,p.getIndicationsColonnes()[i][j].getType(),p.getIndicationsColonnes()[i][j].getColor());
         }
-    } 
+    }
+
+    LOG_DEBUG("Operation Queue");
+    queue = p.queue;
      
     return *this;
 }
@@ -269,8 +265,7 @@ void Picross::setGrilleIJ(int i, int j, int type, int color) {
     grille[i][j].setType(type);
     grille[i][j].setColor(color);
 
-
-    queue.addOp(t);
+    //queue.addOp(t);
 }
 
 void Picross::setGrilleIJ(int i, int j, char c) {
@@ -545,11 +540,11 @@ void Picross::save() const {
         //save of indicationsLignes
         for (int i = 0; i<nbLignes; i++) {
             tempInt = indicationsLignes[i].size();
-            LOG_DEBUG("SAVEtempINT : " <<tempInt);
+            LOG_DEBUG("SAVEtempINT : ");
             file.write ((char*) &tempInt, sizeof (tempInt));
             for (unsigned j = 0; j<indicationsLignes[i].size(); j++) {
                 tempInt = indicationsLignes[i][j].getType();
-                LOG_DEBUG("  type : " <<tempInt);
+                LOG_DEBUG("  type : ");
                 file.write ((char*) &tempInt, sizeof (tempInt));
                 tempInt = indicationsLignes[i][j].getColor();
                 LOG_DEBUG("  color : " <<tempInt);
@@ -605,7 +600,7 @@ void Picross::save() const {
     }
     catch (...)
     {
-        LOG_DEBUG("*** Une erreur s'est produite ! ***");
+        LOG_DEBUG("\n*** Une erreur s'est produite ! ***");
     }
 }
 
@@ -733,7 +728,7 @@ void Picross::load(const string& idGrid) {
     }
     catch (...)
     {
-        LOG_DEBUG("*** Une erreur s'est produite ! ***");
+        LOG_DEBUG("\n*** Une erreur s'est produite ! ***");
     }
 }
 
@@ -837,6 +832,8 @@ int Picross::checkFinishedClassicGrid() {
 }
 
 #if defined(DEBUG) && !defined(NDEBUG)
+using std::cout;
+using std::endl;
 void Picross::displayClassic() const {
 
     //int margin = 10;
@@ -920,14 +917,14 @@ std::ostream& operator<< (std::ostream &flux, Picross & p)
     try
     {
         flux << "\nid : " << p.getId()
-	     << "\ntitle : " << p.getTitle()
-	     << "\nauthor : " << p.getAuthor()
-	     << "\ncopyright : " << p.getCopyright()
-	     << "\ndescription : " << p.getDescription()
-	     << "\nnbLignes : " << p.getNbLignes()
-	     << "\nnbColonnes : " << p.getNbColonnes()
-	     <<"\n\nCOLORS" << p.getColors()
-	     << "\n\nINDICATIONS LIGNES\n";
+        << "\ntitle : " << p.getTitle()
+        << "\nauthor : " << p.getAuthor()
+        << "\ncopyright : " << p.getCopyright()
+        << "\ndescription : " << p.getDescription()
+        << "\nnbLignes : " << p.getNbLignes()
+        << "\nnbColonnes : " << p.getNbColonnes()
+        <<"\n\nCOLORS" << p.getColors()
+        << "\n\nINDICATIONS LIGNES\n";
 
         for (int i = 0; i<p.getNbLignes(); i++) {
             flux<<"|";
@@ -962,7 +959,7 @@ std::ostream& operator<< (std::ostream &flux, Picross & p)
     }
     catch (...)
     {
-        LOG_DEBUG("*** Une erreur s'est produite ! ***";
+        LOG_DEBUG("*** Une erreur s'est produite ! ***");
     }
     return flux;
 }
