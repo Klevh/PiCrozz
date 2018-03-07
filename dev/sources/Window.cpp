@@ -1144,15 +1144,16 @@ void Window::keyEvent(GLFWwindow * window, int key, int action){
 		state_ = QUIT;
 		break;
 	    case GAME:
-		if(!finished){ // saving state if unfinished
+		if(!finished && (grid_.canWeForward() || grid_.canWePrevious()){ // saving state if unfinished
 		    grid_.save();
-		    LOG_DEBUG(grid_.getId());
+		    LOG_DEBUG("saving : " << grid_.getId());
 		}else{ // removing save file if finished
 		    const std::vector<std::string> saves = all_file_in_dir("ressources/Grids/Saves",".dat");
 
 		    if(std::find(saves.begin(), saves.end(),
-				 grid_.getId() + ".dat")
+				 grid_.getId())
 		       != saves.end()){
+			LOG_DEBUG("Removing old saving");
 			std::remove(("ressources/Grids/Saves/" + grid_.getId() + ".dat").c_str());
 		    }
 		}
