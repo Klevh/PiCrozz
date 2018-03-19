@@ -2,3 +2,5 @@
 build
 build/*
 sources/*.o
+save_test_grids/
+save_test_grids/*
