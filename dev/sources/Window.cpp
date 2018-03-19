@@ -844,7 +844,7 @@ void Window::menu_mode(){
 	[&](Window * w, Element * e, int states[GLFW_MOUSE_BUTTON_LAST + 1], int action, int mods, GLfloat, GLfloat){
 	    if(states[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS)
 		state_ = QUIT;
-	    return false;
+	    return true;
 	});
     
     elements_[MENU][2]->setOnClick(
@@ -853,7 +853,7 @@ void Window::menu_mode(){
 		choice_mode();
 		state_ = CHOICE;
 	    }
-	    return false;
+	    return true;
 	});
 
     elements_[MENU].push_back(new Element(&pattern_img_));
@@ -985,7 +985,7 @@ void Window::choice_mode(){
 	elements_[CHOICE][i*2 + 1]->setValue(1,
 					     0.01 + 0.68 * i,
 					     0.01); // set offset
-	elements_[CHOICE][i*2 + 1]->setValue(2, 0.3, 0.08); // set size
+	elements_[CHOICE][i*2 + 1]->setValue(2, 0.3, 0.06); // set size
 	elements_[CHOICE][i*2 + 1]->setValue(3, 0.4 * (i + 1), 0.4 * (i + 1), 0.4 * (i + 1)); // set color
 	
 	// the text of the button
@@ -994,7 +994,7 @@ void Window::choice_mode(){
 	elements_[CHOICE][i*2 + 2]->setValue(1,
 					     0.015 + 0.68 * i,
 					     0.015); // set offset
-	elements_[CHOICE][i*2 + 2]->setValue(2, 0.29, 0.07); // set size
+	elements_[CHOICE][i*2 + 2]->setValue(2, 0.29, 0.05); // set size
 
 	surface = TTF_RenderText_Blended(font_, btn_txt[i], {0,0,0,255});
 	if(!surface){
@@ -1007,7 +1007,7 @@ void Window::choice_mode(){
 	elements_[CHOICE][3]->setValue(3, 0.4, 0.4, 0.4);
     }
     elements_[CHOICE][1]->setOnClick(back);
-    elements_[CHOICE][1]->setOnClick(next);
+    elements_[CHOICE][3]->setOnClick(next);
 
     // adding title
     elements_[CHOICE][0] = new Element(&pattern_img_);
@@ -1067,7 +1067,7 @@ void Window::choice_mode(){
 		elements_[CHOICE][ids_[CHOICE]] = new Element(&pattern_img_);
 		elements_[CHOICE][ids_[CHOICE]]->setValue(0, 0.5); // plan
 		elements_[CHOICE][ids_[CHOICE]]->setValue(1,
-							  size_col * (j + 0.15),
+							  size_col * (j + 0.15) + cursor,
 							  0.8 - size_row * (i + 0.15 + 1)); // offset
 		elements_[CHOICE][ids_[CHOICE]]->setValue(2,
 							  size_col * 0.7,
@@ -1144,7 +1144,7 @@ void Window::keyEvent(GLFWwindow * window, int key, int action){
 		state_ = QUIT;
 		break;
 	    case GAME:
-		if(!finished && (grid_.canWeForward() || grid_.canWePrevious()){ // saving state if unfinished
+		if(!finished && (grid_.canWeForward() || grid_.canWePrevious())){ // saving state if unfinished
 		    grid_.save();
 		    LOG_DEBUG("saving : " << grid_.getId());
 		}else{ // removing save file if finished
