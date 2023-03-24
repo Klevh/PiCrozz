@@ -133,3 +133,5 @@ file(GLOB SHADERS
   "${PROJECT_SOURCE_DIR}/ressources/*")
 
 file(COPY ${SHADERS} DESTINATION ${CMAKE_BINARY_DIR}/ressources)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/ressources/Grids/Saves)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/ressources/Grids/Finished)
